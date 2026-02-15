@@ -81,8 +81,13 @@ The Intermediate Representation (IR) ensures the core remains warehouse-agnostic
 Uses a hierarchical namespace model that degrades gracefully.
 
 - `CatalogNamespace`: List of parts (e.g., `["project", "dataset"]` for BigQuery).
-- `CatalogRelation`: Namespace + name + kind (table/view/etc).
-- `CatalogColumn`: Name, type, nullability, description, tags, and constraints.
+- `CatalogRelation`: Namespace + name + kind (table/view/etc) + metadata (`Dict[str, Any]`).
+- `CatalogColumn`: Name, type, nullability, description, tags, constraints + metadata (`Dict[str, Any]`).
+
+The `metadata` field enables a **Producer/Consumer pattern** for plugin collaboration:
+
+- **Producers**: Warehouse plugins attach warehouse-specific details (e.g., `bigquery.partition_info`).
+- **Consumers**: Tool plugins (like Lightdash) read these details to automate configuration (e.g., setting default filters).
 
 #### 2. dbt Resource IR
 
