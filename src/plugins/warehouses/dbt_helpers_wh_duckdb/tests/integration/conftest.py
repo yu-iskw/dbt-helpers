@@ -1,4 +1,5 @@
 """Pytest fixtures for DuckDB integration tests (local and Docker)."""
+
 import contextlib
 import os
 import shutil
@@ -109,8 +110,7 @@ def _run_dbt_docker(fixture_path: Path, db_path: Path, tmp_path_factory) -> Path
             # Fallback: try to find DB file in workspace (might be in /workspace or /tmp)
             # This shouldn't happen if profiles.yml is correctly configured
             raise FileNotFoundError(
-                f"Database file not found at {container_db_path}. "
-                "Check that profiles.yml path is correctly configured."
+                f"Database file not found at {container_db_path}. Check that profiles.yml path is correctly configured."
             )
 
     return db_path
@@ -132,9 +132,7 @@ def dbt_duckdb_container(tmp_path_factory):
 
     if use_docker:
         if not _docker_available():
-            pytest.skip(
-                "Docker is not available or not running. Set USE_DOCKER=false to use local execution."
-            )
+            pytest.skip("Docker is not available or not running. Set USE_DOCKER=false to use local execution.")
         db_path = _run_dbt_docker(fixture_path, db_path, tmp_path_factory)
     else:
         db_path = _run_dbt_local(fixture_path, db_path, tmp_dir)

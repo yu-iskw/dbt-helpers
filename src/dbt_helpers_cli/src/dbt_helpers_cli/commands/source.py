@@ -16,9 +16,7 @@ def source_import(
         list[str],
         typer.Option("--scope", "-s", help="Scope of catalog to read (e.g. schema name)"),
     ],
-    project_dir: Annotated[
-        Path | None, typer.Option("--project-dir", "-p", help="Path to dbt project")
-    ] = None,
+    project_dir: Annotated[Path | None, typer.Option("--project-dir", "-p", help="Path to dbt project")] = None,
     plan_only: Annotated[bool, typer.Option("--plan", help="Only show plan")] = True,
 ):
     """Import dbt Sources from warehouse metadata."""
@@ -31,9 +29,7 @@ def source_import(
         if plan_only:
             print_plan(plan)
         else:
-            console.print(
-                "[yellow]Apply functionality is not yet implemented in this MVP.[/yellow]"
-            )
+            console.print("[yellow]Apply functionality is not yet implemented in this MVP.[/yellow]")
 
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")

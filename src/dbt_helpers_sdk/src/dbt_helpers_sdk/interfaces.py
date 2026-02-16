@@ -9,9 +9,7 @@ from .plan import Plan
 class CatalogClient(Protocol):
     """Protocol for reading catalog metadata from a warehouse."""
 
-    def read_catalog(
-        self, scope: list[str], connection_config: dict[str, Any]
-    ) -> list[CatalogRelation]:
+    def read_catalog(self, scope: list[str], connection_config: dict[str, Any]) -> list[CatalogRelation]:
         """Read catalog metadata for the given scope."""
 
 

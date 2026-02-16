@@ -80,16 +80,12 @@ class Orchestrator:
         # 2. Select Plugins
         wh_name = self.config.warehouse.plugin
         if wh_name not in wh_plugins:
-            raise ValueError(
-                f"Warehouse plugin '{wh_name}' not found. Available: {list(wh_plugins.keys())}"
-            )
+            raise ValueError(f"Warehouse plugin '{wh_name}' not found. Available: {list(wh_plugins.keys())}")
         wh_plugin = wh_plugins[wh_name]
 
         schema_name = "dbt"
         if schema_name not in schema_plugins:
-            raise ValueError(
-                f"Schema plugin '{schema_name}' not found. Available: {list(schema_plugins.keys())}"
-            )
+            raise ValueError(f"Schema plugin '{schema_name}' not found. Available: {list(schema_plugins.keys())}")
         schema_plugin = schema_plugins[schema_name]
 
         # 3. Read Catalog

@@ -1,19 +1,24 @@
+from base import DuckDBIntegrationTestCase
 from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 
-def test_duckdb_read_catalog_integration(dbt_duckdb_container):
-    db_path = str(dbt_duckdb_container)
-    plugin = DuckDBWarehousePlugin(db_path=db_path)
+class TestDuckDBCatalog(DuckDBIntegrationTestCase):
+    """Test catalog reading with DuckDB."""
 
-    # dbt default schema for DuckDB is 'main'
-    relations = plugin.read_catalog(["main"], connection_config={})
+    def test_duckdb_read_catalog_integration(self):
+        """Test that read_catalog correctly extracts metadata from a real DuckDB."""
+        db_path = str(self.db_path)
+        plugin = DuckDBWarehousePlugin(db_path=db_path)
 
-    assert len(relations) >= 1
+        # dbt default schema for DuckDB is 'main'
+        relations = plugin.read_catalog(["main"], connection_config={})
 
-    users_rel = next((r for r in relations if r.name == "users"), None)
-    assert users_rel is not None
-    assert users_rel.namespace.parts == ["main"]
+        self.assertGreaterEqual(len(relations), 1)
 
-    col_names = [c.name for c in users_rel.columns]
-    assert "id" in col_names
-    assert "name" in col_names
+        users_rel = next((r for r in relations if r.name == "users"), None)
+        self.assertIsNotNone(users_rel)
+        self.assertEqual(users_rel.namespace.parts, ["main"])
+
+        col_names = [c.name for c in users_rel.columns]
+        self.assertIn("id", col_names)
+        self.assertIn("name", col_names)

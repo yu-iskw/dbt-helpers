@@ -46,9 +46,7 @@ class TestDbtSchemaAdapter(unittest.TestCase):
 
     def test_render_model_yaml_fusion(self):
         adapter = UnifiedDbtSchemaAdapter()
-        resource = DbtResourceIR(
-            name="my_model", meta={"owner": "bob"}, columns=[DbtColumnIR(name="id")]
-        )
+        resource = DbtResourceIR(name="my_model", meta={"owner": "bob"}, columns=[DbtColumnIR(name="id")])
 
         yaml_content = adapter.render_model_yaml([resource], target_version="fusion")
         data = yaml.safe_load(yaml_content)

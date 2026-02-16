@@ -16,9 +16,7 @@ class DuckDBWarehousePlugin(CatalogClient):
     def __init__(self, db_path: str = ":memory:"):
         self.db_path = db_path
 
-    def read_catalog(
-        self, scope: list[str], connection_config: dict[str, Any]
-    ) -> list[CatalogRelation]:
+    def read_catalog(self, scope: list[str], connection_config: dict[str, Any]) -> list[CatalogRelation]:
         db_path = connection_config.get("db_path", self.db_path)
         # Connect to the database
         conn = duckdb.connect(db_path)

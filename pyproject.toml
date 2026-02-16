@@ -67,10 +67,10 @@ ignore = [
 "**/tests/**/*.py" = ["S101"]
 "**/tests/integration/conftest.py" = ["S603", "S607"]
 
-[tool.ruff.lint.pydocstyle]
+[tool.ruff.pydocstyle]
 convention = "google"
 
-[tool.ruff.lint.isort]
+[tool.ruff.isort]
 known-first-party = ["dbt_helpers_core", "dbt_helpers_cli", "dbt_helpers_sdk"]
 
 [tool.mypy]
