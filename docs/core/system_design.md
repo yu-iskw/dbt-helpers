@@ -34,12 +34,15 @@ dbt-helpers/
 │   │   ├── pyproject.toml
 │   │   └── src/dbt_helpers_cli/
 │   └── plugins/
-│       ├── dbt_helpers_wh_bigquery/  # BigQuery warehouse adapter
-│       ├── dbt_helpers_wh_duckdb/    # DuckDB warehouse adapter
-│       ├── dbt_helpers_tool_lightdash/ # Lightdash integration
-│       ├── dbt_helpers_tool_elementary/ # Elementary integration
-│       ├── dbt_helpers_schema_v2/    # dbt Core 1.10+ schema adapter
-│       └── dbt_helpers_schema_fusion/ # dbt Fusion schema adapter
+│       ├── warehouses/
+│       │   ├── dbt_helpers_wh_bigquery/  # BigQuery warehouse adapter
+│       │   └── dbt_helpers_wh_duckdb/    # DuckDB warehouse adapter
+│       ├── tools/
+│       │   ├── dbt_helpers_tool_lightdash/ # Lightdash integration
+│       │   └── dbt_helpers_tool_elementary/ # Elementary integration
+│       └── schemas/
+│           ├── dbt_helpers_schema_v2/    # dbt Core 1.10+ schema adapter
+│           └── dbt_helpers_schema_fusion/ # dbt Fusion schema adapter
 ├── docs/
 │   ├── core/
 │   │   └── system_design.md    # This document
@@ -230,10 +233,30 @@ Uses `ruamel.yaml` in a dedicated `YamlStore` subsystem.
 
 ### Testing Strategy
 
-- **SDK Level**: Contract and mapping stability tests.
-- **Core Level**: Plan merge, conflict resolution, and idempotency tests.
-- **Plugin Level**: Mocked catalog endpoints and fixture-based emitter tests.
-- **End-to-End**: Full CLI execution against sample dbt projects with golden output comparison.
+`dbt-helpers` follows a **Hexagonal Architecture** with a focus on **Functional Core, Imperative Shell**. This design is reflected in our testing strategy, which prioritizes speed, reliability, and the avoidance of brittle mocks.
+
+#### 1. Philosophy: Nullable Infrastructure
+
+We avoid using standard mocking libraries (`unittest.mock`) for infrastructure. Instead, we use the **Nullable Infrastructure** pattern.
+
+- **Unit Tests**: Test core logic using "Nullable" versions of adapters. These are real implementations that use in-memory state (e.g., in-memory DuckDB for catalogs, memory-backed filesystems) to ensure tests are fast and deterministic without external I/O.
+- **Integration Tests**: Verify the actual production adapters against real infrastructure using **Testcontainers**. This ensures our adapters correctly handle SQL dialect nuances and filesystem edge cases.
+
+#### 2. Test Organization
+
+Tests are co-located with their respective packages to maintain strict boundaries and modularity.
+
+- `src/<package>/tests/unit/`: Logic and orchestration tests using Nullable adapters.
+- `src/<package>/tests/integration/`: Container-based tests for infrastructure adapters.
+
+#### 3. Levels of Testing
+
+- **SDK Level**: Contract and mapping stability tests. Ensures the IR remains stable.
+- **Core Level**: Plan merge, conflict resolution, and orchestration logic using Nullable adapters.
+- **Plugin Level**:
+  - **Warehouse Plugins**: Integration tests against real database containers (Postgres, DuckDB).
+  - **Tool Plugins**: Emitter tests using fixture-based catalogs.
+- **End-to-End**: Full CLI execution against sample dbt projects (stored in `integration_tests/`) with golden output comparison.
 
 ---
 
