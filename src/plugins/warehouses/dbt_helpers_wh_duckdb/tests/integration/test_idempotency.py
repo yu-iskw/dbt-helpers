@@ -1,10 +1,11 @@
 import hashlib
 from pathlib import Path
 
-from base import DuckDBIntegrationTestCase
 from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 from dbt_helpers_core.orchestrator import Orchestrator
+
+from .base import DuckDBIntegrationTestCase
 
 
 def _file_hash(file_path: Path) -> str:

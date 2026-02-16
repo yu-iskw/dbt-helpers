@@ -128,7 +128,18 @@ class Orchestrator:
 
         # Generate ops per path
         for path, resources in path_to_resources.items():
-            source_yaml = schema_plugin.render_source_yaml(resources, self.config.target_version)
+            # Get source name from the first resource (they are grouped by path, which usually means same source)
+            source_name = resources[0].meta.get("_extraction_metadata", {}).get("source_name", "raw")
+
+            # Construct the environment switching pattern for database
+            db_pattern = f"{{{{ var('databases', var('projects', {{}})).get('{source_name}', target.database) }}}}"
+
+            source_yaml = schema_plugin.render_source_yaml(
+                resources,
+                self.config.target_version,
+                source_name=source_name,
+                database=db_pattern
+            )
 
             if path.exists():
                 # In a real app, we'd only patch if content actually changes

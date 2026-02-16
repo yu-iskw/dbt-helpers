@@ -3,9 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from conftest import _docker_available, _run_dbt_docker, _run_dbt_local
-
 from dbt_helpers_core.testing import IntegrationTestCase
+
+from .conftest import _docker_available, _run_dbt_docker, _run_dbt_local
 
 
 class DuckDBIntegrationTestCase(IntegrationTestCase):

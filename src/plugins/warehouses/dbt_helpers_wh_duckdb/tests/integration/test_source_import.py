@@ -1,7 +1,9 @@
-from base import DuckDBIntegrationTestCase
+import duckdb
 
 from dbt_helpers_core.orchestrator import Orchestrator
 from dbt_helpers_sdk import CreateFile, Plan, UpdateYamlFile
+
+from .base import DuckDBIntegrationTestCase
 
 
 class TestDuckDBSourceImport(DuckDBIntegrationTestCase):
@@ -56,9 +58,6 @@ paths:
 
     def test_source_import_comprehensive(self):
         """Test source import with multiple schemas and various data types."""
-        # pylint: disable=import-outside-toplevel
-        import duckdb
-
         db_path = self.tmp_path / "comprehensive.duckdb"
         conn = duckdb.connect(str(db_path))
 
@@ -129,8 +128,6 @@ paths:
 
     def test_source_import_idempotency(self):
         """Test that importing the same source twice results in an UpdateYamlFile."""
-        import duckdb
-
         db_path = self.tmp_path / "idempotency.duckdb"
         conn = duckdb.connect(str(db_path))
         conn.execute("CREATE TABLE main.users (id INTEGER)")

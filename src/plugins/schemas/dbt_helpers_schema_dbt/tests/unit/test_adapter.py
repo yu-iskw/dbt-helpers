@@ -55,3 +55,20 @@ class TestDbtSchemaAdapter(unittest.TestCase):
         model = data["models"][0]
         self.assertEqual(model["name"], "my_model")
         self.assertEqual(model["config"]["meta"], {"owner": "bob"})
+
+    def test_render_source_yaml_project_vars(self):
+        """Test that render_source_yaml supports dbt project variable pattern."""
+        adapter = UnifiedDbtSchemaAdapter()
+        resource = DbtResourceIR(name="my_table", columns=[DbtColumnIR(name="id")])
+        db_pattern = "{{ var('databases', var('projects', {})).get('service_1', target.database) }}"
+
+        yaml_content = adapter.render_source_yaml(
+            [resource],
+            target_version="dbt",
+            source_name="service_1",
+            database=db_pattern,
+        )
+        data = yaml.safe_load(yaml_content)
+
+        self.assertEqual(data["sources"][0]["name"], "service_1")
+        self.assertEqual(data["sources"][0]["database"], db_pattern)

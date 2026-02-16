@@ -25,7 +25,13 @@ class ToolEmitter(Protocol):
 class SchemaAdapter(Protocol):
     """Protocol for mapping between dbt YAML and internal IR."""
 
-    def render_source_yaml(self, resources: list[DbtResourceIR], target_version: str) -> str:
+    def render_source_yaml(
+        self,
+        resources: list[DbtResourceIR],
+        target_version: str,
+        source_name: str = "raw",
+        database: str | None = None,
+    ) -> str:
         """Render dbt resources into a YAML string for a specific dbt version."""
 
     def render_model_yaml(self, resources: list[DbtResourceIR], target_version: str) -> str:

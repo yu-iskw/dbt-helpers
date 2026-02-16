@@ -8,12 +8,25 @@ from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR, SchemaAdapter
 class UnifiedDbtSchemaAdapter(SchemaAdapter):
     """Adapter for mapping between dbt YAML and internal IR."""
 
-    def render_source_yaml(self, resources: list[DbtResourceIR], target_version: str) -> str:
+    def render_source_yaml(
+        self,
+        resources: list[DbtResourceIR],
+        target_version: str,
+        source_name: str = "raw",
+        database: str | None = None,
+    ) -> str:
         """Render dbt resources into a source YAML string."""
         tables = [self._resource_to_dict(res, target_version) for res in resources]
+        source_dict: dict[str, Any] = {
+            "name": source_name,
+            "tables": tables,
+        }
+        if database:
+            source_dict["database"] = database
+
         output = {
             "version": 2,
-            "sources": [{"name": "raw", "tables": tables}],  # Hardcoded for MVP
+            "sources": [source_dict],
         }
         out: str = yaml.dump(output, sort_keys=False, default_flow_style=False)
         return out

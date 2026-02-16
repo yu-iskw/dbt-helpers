@@ -1,5 +1,6 @@
-from base import DuckDBIntegrationTestCase
 from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
+
+from .base import DuckDBIntegrationTestCase
 
 
 class TestDuckDBCatalogEnhanced(DuckDBIntegrationTestCase):

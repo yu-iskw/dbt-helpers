@@ -1,7 +1,7 @@
-from base import DuckDBIntegrationTestCase
-
 from dbt_helpers_core.orchestrator import Orchestrator
 from dbt_helpers_sdk import Plan
+
+from .base import DuckDBIntegrationTestCase
 
 
 class TestDuckDBScaffold(DuckDBIntegrationTestCase):

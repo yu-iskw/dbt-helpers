@@ -25,7 +25,9 @@ class MockWarehousePlugin:
 class MockSchemaPlugin:
     """Mock schema plugin for orchestrator tests."""
 
-    def render_source_yaml(self, resources, target_version):  # noqa: ARG002  # pylint: disable=unused-argument
+    def render_source_yaml(self, resources, target_version, source_name="raw", database=None):  # noqa: ARG002  # pylint: disable=unused-argument
+        self.last_source_name = source_name
+        self.last_database = database
         return "mock yaml"
 
     def render_model_yaml(self, resources, target_version):  # noqa: ARG002  # pylint: disable=unused-argument
@@ -84,6 +86,27 @@ sources:
             self.assertEqual(op.op_kind, "update_yaml_file")
             self.assertEqual(op.path, project_dir / "models/raw/sources.yml")
             self.assertEqual(op.patch_ops, [{"content": "mock yaml"}])
+
+    def test_orchestrator_generate_source_plan_env_vars(self):
+        """Test that generate_source_plan passes correct env var patterns."""
+        project_dir = self.test_dir / "env_var_project"
+        project_dir.mkdir()
+        (project_dir / "dbt_helpers.yml").write_text("warehouse:\n  plugin: mock_wh\ntarget_version: dbt")
+
+        mock_wh = MockWarehousePlugin()
+        mock_schema = MockSchemaPlugin()
+
+        with (
+            patch("dbt_helpers_core.orchestrator.get_warehouse_plugins", return_value={"mock_wh": mock_wh}),
+            patch("dbt_helpers_core.orchestrator.get_schema_plugins", return_value={"dbt": mock_schema}),
+        ):
+            orchestrator = Orchestrator(project_dir)
+            orchestrator.generate_source_plan(["raw"])
+
+            # Verify that mock_schema received the correct parameters
+            self.assertEqual(mock_schema.last_source_name, "raw")
+            expected_db_pattern = "{{ var('databases', var('projects', {})).get('raw', target.database) }}"
+            self.assertEqual(mock_schema.last_database, expected_db_pattern)
 
     def test_orchestrator_scaffold_models(self):
         project_dir = self.test_dir / "scaffold_project"
