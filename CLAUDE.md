@@ -31,6 +31,8 @@ make clean      # Clean build artifacts
 
 ## Testing
 
+- Use `unittest.TestCase` for unit tests
+- Use `self.assert*` methods instead of bare `assert` in unit tests
 - Write tests in `tests/` directory
 - Test files must match pattern `test_*.py`
 - Run `make test` before committing
@@ -71,22 +73,28 @@ This decomposes tasks into independent subtasks with file ownership, executes th
 
 ## Available Agents
 
-| Agent                    | Purpose                              |
-| ------------------------ | ------------------------------------ |
-| `verifier`               | Run build → lint → test cycle        |
-| `code-reviewer`          | Review code for quality and security |
-| `parallel-executor`      | Orchestrate parallel task execution  |
-| `parallel-tasks-planner` | Plan task decomposition              |
-| `task-worker`            | Execute isolated subtasks            |
+| Agent               | Purpose                                                 |
+| :------------------ | :------------------------------------------------------ |
+| `verifier`          | Run build → lint → test cycle                           |
+| `code-reviewer`     | Review code for quality and security                    |
+| `plugin-engineer`   | Specialist for building and testing dbt-helpers plugins |
+| `schema-specialist` | Specialist for dbt YAML version adapters and migrations |
+| `parallel-executor` | Orchestrate parallel task execution                     |
+
+See [AGENTS.md](AGENTS.md) for the full catalog of specialized agents.
 
 ## Available Skills
 
 Use these when the corresponding CLI is available (`adr`, `changie`):
 
-| Skill              | Purpose                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| `manage-adr`       | Manage Architecture Decision Records (init, create, list, link ADRs in `docs/adr`)            |
-| `manage-changelog` | Manage changelogs with Changie (init, add fragments, batch releases, merge into CHANGELOG.md) |
+| Skill                         | Purpose                                             |
+| :---------------------------- | :-------------------------------------------------- |
+| `dbt-helpers-plugin-scaffold` | Scaffold and standardize new dbt-helpers plugins    |
+| `dbt-helpers-golden-e2e`      | Run End-to-End tests using golden output comparison |
+| `manage-adr`                  | Manage Architecture Decision Records in `docs/adr`  |
+| `manage-changelog`            | Manage changelogs with Changie                      |
+
+See [AGENTS.md](AGENTS.md) for the full catalog of specialized skills.
 
 ## Self-Improvement
 

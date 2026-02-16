@@ -1,0 +1,26 @@
+[project]
+name = "dbt-helpers-cli"
+version = "0.1.0"
+description = "CLI for dbt-helpers"
+authors = [{ name = "yu-iskw" }]
+requires-python = ">=3.10"
+dependencies = [
+  "dbt-helpers-core",
+  "dbt-helpers-sdk",
+  "typer>=0.9.0",
+  "rich>=13.0.0",
+]
+
+[project.scripts]
+dbth = "dbt_helpers_cli.main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dbt_helpers_cli"]
+
+[tool.uv.sources]
+dbt-helpers-core = { workspace = true }
+dbt-helpers-sdk = { workspace = true }

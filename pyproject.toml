@@ -1,59 +1,87 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build]
-exclude = [
-  ".git",
-  ".venv",
-  ".mypy_cache",
-  ".pytest_cache",
-  ".github",
-  ".trunk",
-  "tests",
-  "dev",
-  "dist",
-  ".python-version",
-]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/your_package"]
-
 [project]
-name = "your-package"
+name = "dbt-helpers"
 version = "0.1.0"
+description = "A modular, extensible toolkit for dbt project management"
 authors = [{ name = "yu-iskw" }]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.10.0"
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Intended Audience :: Information Technology",
-  "Intended Audience :: System Administrators",
-  "Operating System :: OS Independent",
-  "Topic :: Software Development :: Libraries",
-  "Topic :: Software Development :: Libraries :: Python Modules",
-  "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Typing :: Typed",
+requires-python = ">=3.10"
+dependencies = [
+  "dbt-helpers-cli",
+  "dbt-helpers-wh-duckdb",
+  "dbt-helpers-schema-dbt",
 ]
-description = "A dbt artifacts parser in python"
-dependencies = []
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-  "pytest>=8.3.5",
-  "bandit>=1.8.3",
-  "isort>=6.0.1",
-  "ruff>=0.9.10",
-  "mypy>=1.15.0",
-  "pylint>=3.3.5",
+  "pytest>=8.0.0",
+  "pytest-cov>=4.1.0",
+  "testcontainers>=4.0.0",
+  "dbt-duckdb>=1.8.0",
+  "types-PyYAML",
 ]
 
-[project.scripts]
+[tool.uv.sources]
+dbt-helpers-cli = { workspace = true }
+dbt-helpers-wh-duckdb = { workspace = true }
+dbt-helpers-schema-dbt = { workspace = true }
+
+[tool.uv]
+workspace = { members = ["src/dbt_helpers_*", "src/plugins/*/*"] }
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "N",   # pep8-naming
+  "D",   # pydocstyle
+  "UP",  # pyupgrade
+  "B",   # flake8-bugbear
+  "S",   # flake8-bandit
+  "PT",  # flake8-pytest-style
+  "RUF", # ruff-specific rules
+  "SIM", # flake8-simplify
+  "TCH", # flake8-type-checking
+  "ARG", # flake8-unused-arguments
+  "PTH", # flake8-use-pathlib
+]
+ignore = [
+  "E501",  # line too long (handled by formatter)
+  "D100",  # missing docstring in public module
+  "D101",  # missing docstring in public class
+  "D102",  # missing docstring in public method
+  "D103",  # missing docstring in public function
+  "D104",  # missing docstring in public package
+  "D107",  # missing docstring in __init__
+  "PT009", # use regular assert instead of unittest-style assertEqual
+  "S608",  # SQL injection (we generate SQL files)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["S101"]
+"**/tests/integration/conftest.py" = ["S603", "S607"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["dbt_helpers_core", "dbt_helpers_cli", "dbt_helpers_sdk"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
+
+[tool.bandit]
+skips = ["B101"]
+exclude_dirs = []

@@ -1,0 +1,3 @@
+# Bandit config: skip B101 (assert) in test code; repo uses pytest-style asserts in integration tests.
+[bandit]
+skips = B101

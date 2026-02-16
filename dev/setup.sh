@@ -39,7 +39,7 @@ done
 cd "${MODULE_DIR}"
 
 # Install uv and dependencies
-pip install --force-reinstall -r "${MODULE_DIR}/requirements.setup.txt"
+python3 -m pip install --force-reinstall -r "${MODULE_DIR}/requirements.setup.txt"
 
 # Create virtual environment
 uv venv
