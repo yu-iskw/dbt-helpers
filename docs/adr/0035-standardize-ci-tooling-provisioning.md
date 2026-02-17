@@ -21,11 +21,12 @@ To ensure reliable and reproducible CI/CD runs, we need a standardized way to pr
 
 ## Decision
 
-We will standardize on using official GitHub Actions for provisioning `uv` and `trunk` at the beginning of each relevant job.
+We will standardize on using official GitHub Actions for provisioning `uv` and `trunk` at the beginning of each relevant job. However, `trunk` will only be required for workflows that perform linting or formatting (e.g., `trunk_check.yml`). Other workflows like `test.yml` or `publish.yml` will no longer require `trunk` to be present, as `dev/setup.sh` has been updated to make it optional.
 
-1. **Use \`astral-sh/setup-uv@v5\`**: This is the official action for installing the \`uv\` package manager. We will use it to ensure \`uv\` is available for dependency management and running scripts.
-2. **Use \`trunk-io/trunk-action/setup@v1\`**: This is the official action for installing the \`trunk\` CLI without running full checks. This is preferred when we only need the CLI to be available for other scripts. For full linting jobs, we continue to use \`trunk-io/trunk-action@v1\`.
-3. **Sequence**: These setup steps will be placed before any scripts that rely on these tools (e.g., \`bash dev/setup.sh\`).
+1. **Use `astral-sh/setup-uv@v5`**: This is the official action for installing the `uv` package manager. We will use it to ensure `uv` is available for dependency management and running scripts.
+2. **Use `trunk-io/trunk-action/setup@v1`**: This is the official action for installing the `trunk` CLI without running full checks. This is preferred when we only need the CLI to be available for other scripts that _might_ use it (like local setup).
+3. **Use `trunk-io/trunk-action@v1`**: For workflows dedicated to linting (like `trunk_check.yml`), this action will be used to run the full suite of Trunk checks.
+4. **Sequence**: These setup steps will be placed before any scripts that rely on these tools (e.g., `bash dev/setup.sh`).
 
 ## Consequences
 
@@ -34,7 +35,8 @@ We will standardize on using official GitHub Actions for provisioning `uv` and `
 - **Reliability**: Workflows will no longer fail due to missing environment prerequisites.
 - **Maintainability**: Using official actions ensures we get the latest stable versions and optimizations (like caching) provided by the tool authors.
 - **Consistency**: All developers and CI runners will use the same tool versions.
-- **Simplified Setup**: The \`dev/setup.sh\` script remains lean and doesn't need to handle complex tool installations itself.
+- **Simplified Setup**: The `dev/setup.sh` script remains lean and doesn't need to handle complex tool installations itself.
+- **Optimized CI**: Workflows that don't need linting/formatting (like `test` and `publish`) skip the `trunk` setup, saving time and reducing external dependencies.
 
 ### Negative
 

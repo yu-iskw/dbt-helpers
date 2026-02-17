@@ -21,8 +21,6 @@ jobs:
           python-version: "3.12"
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
-      - name: Set up trunk
-        uses: trunk-io/trunk-action/setup@v1
       - name: Test publish
         env:
           UV_PUBLISH_TOKEN: "${{ secrets.TESTPYPI_API_TOKEN }}"

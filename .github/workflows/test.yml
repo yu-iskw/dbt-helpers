@@ -32,8 +32,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
-      - name: Set up trunk
-        uses: trunk-io/trunk-action/setup@v1
       - name: Install dependencies
         run: |
           bash dev/setup.sh --deps "development"
