@@ -72,20 +72,12 @@ class Orchestrator:
 
         for op in plan.ops:
             if isinstance(op, UpdateYamlFile):
-                # Handle special 'content' patch for full replace while preserving comments
-                content_patch = next((p for p in op.patch_ops if "content" in p), None)
-                if content_patch:
-                    new_content = content_patch["content"]
-                else:
-                    # Load current content and apply patches
-                    full_path = self.project_dir / op.path
-                    if full_path.exists():
-                        current_content = full_path.read_text(encoding="utf-8")
-                        new_content = yaml_store.patch(current_content, op.patch_ops)
-                    else:
-                        continue
-
-                fs_writer.create_file(op.path, new_content)
+                # Load current content and apply patches
+                full_path = self.project_dir / op.path
+                if full_path.exists():
+                    current_content = full_path.read_text(encoding="utf-8")
+                    new_content = yaml_store.patch(current_content, op.patch_ops)
+                    fs_writer.create_file(op.path, new_content)
             else:
                 fs_writer.apply_op(op)
 

@@ -10,6 +10,8 @@ This document provides a comprehensive list of specialized AI agents and skills 
 - [Domain-Specific Skills (dbt-helpers)](#domain-specific-skills-dbt-helpers)
 - [General Workflow Skills](#general-workflow-skills)
 
+> [!IMPORTANT] > **Getting Started**: If you are new to the repository or your environment is out of sync, run the `setup-dev-env` skill first to ensure all prerequisites (`trunk`, `uv`, etc.) and dependencies are correctly configured.
+
 ---
 
 ## Core Engineering Agents

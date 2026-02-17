@@ -1,6 +1,6 @@
 from typing import Any
 
-from dbt_helpers_sdk import DbtResourceIR, SchemaAdapter
+from dbt_helpers_sdk import DbtResourceIR, PatchOp, SchemaAdapter
 
 from .renderers.model import ModelRenderer
 from .renderers.snapshot import SnapshotRenderer
@@ -93,10 +93,10 @@ class UnifiedDbtSchemaAdapter(SchemaAdapter):
 
     def calculate_patch(
         self,
-        current_ir: DbtResourceIR,  # noqa: ARG002
-        new_ir: DbtResourceIR,  # noqa: ARG002
-    ) -> list[dict[str, Any]]:
+        current_ir: DbtResourceIR,
+        new_ir: DbtResourceIR,
+    ) -> list[PatchOp]:
         """Calculate a list of YAML patch operations to transform current_ir into new_ir."""
-        # pylint: disable=unused-argument
-        # Stub for now to satisfy protocol
-        return []
+        if "source_name" in current_ir.meta.get("_extraction_metadata", {}):
+            return self.source_renderer.calculate_patch(current_ir, new_ir)
+        return self.model_renderer.calculate_patch(current_ir, new_ir)

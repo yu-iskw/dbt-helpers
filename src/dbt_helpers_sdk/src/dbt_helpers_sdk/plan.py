@@ -8,6 +8,12 @@ class BasePlannedOp(BaseModel):
     op_kind: str
 
 
+class PatchOp(BaseModel):
+    op: Literal["upsert_mapping_key", "merge_sequence_unique", "delete_key", "replace_content"]
+    path: list[str | int | dict[str, Any]] = Field(default_factory=list)
+    value: Any = None
+
+
 class CreateFile(BasePlannedOp):
     op_kind: Literal["create_file"] = "create_file"
     path: Path
@@ -17,7 +23,7 @@ class CreateFile(BasePlannedOp):
 class UpdateYamlFile(BasePlannedOp):
     op_kind: Literal["update_yaml_file"] = "update_yaml_file"
     path: Path
-    patch_ops: list[dict[str, Any]]
+    patch_ops: list[PatchOp]
 
 
 class DeleteFile(BasePlannedOp):

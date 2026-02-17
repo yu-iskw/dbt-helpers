@@ -5,6 +5,7 @@ from dbt_helpers_sdk import (
     CatalogRelation,
     CreateFile,
     DbtResourceIR,
+    PatchOp,
     Plan,
     UpdateYamlFile,
 )
@@ -97,7 +98,7 @@ class SourceSyncService:
             )
 
             if path.exists():
-                plan.add_op(UpdateYamlFile(path=path, patch_ops=[{"content": source_yaml}]))
+                plan.add_op(UpdateYamlFile(path=path, patch_ops=[PatchOp(op="replace_content", value=source_yaml)]))
             else:
                 plan.add_op(CreateFile(path=path, content=source_yaml))
 

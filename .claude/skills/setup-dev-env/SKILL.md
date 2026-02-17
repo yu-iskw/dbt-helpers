@@ -11,11 +11,14 @@ This skill automates the process of setting up the development environment to en
 
 - [ ] **Step 1: Environment Validation**
   - [ ] Check Python version against `.python-version`
-  - [ ] Check for `trunk` installation
-  - [ ] Check for `uv` installation
-- [ ] **Step 2: Dependency Installation**
+  - [ ] Check for `trunk` installation (including `/opt/homebrew/bin/trunk`)
+  - [ ] Check for `uv` installation (including `/opt/homebrew/bin/uv`)
+- [ ] **Step 2: macOS Prerequisites (if applicable)**
+  - [ ] Install `trunk-io` and `uv` via Homebrew if missing
+  - [ ] Ensure Homebrew bin is in `PATH`
+- [ ] **Step 3: Dependency Installation**
   - [ ] Run `make setup`
-- [ ] **Step 3: Tooling Setup**
+- [ ] **Step 4: Tooling Setup**
   - [ ] Run `trunk install` to fetch managed linters and formatters
 
 ## Detailed Instructions
@@ -26,24 +29,38 @@ This skill automates the process of setting up the development environment to en
 
 Read the `.python-version` file in the workspace root. Ensure the current Python environment matches this version. If there's a mismatch, inform the user to switch Python versions (e.g., using `pyenv` or `asdf`).
 
-#### Tooling Installation
+#### Tooling Installation (macOS Focus)
 
-Check if `trunk` and `uv` are installed.
-If not found, advise the user to install them. On macOS, use:
+Check if `trunk` and `uv` are installed and available in the current `PATH`.
+On macOS, prioritize Homebrew installation to avoid common pathing and permission issues.
+
+**Check common locations:**
+
+- `/opt/homebrew/bin/trunk`
+- `/opt/homebrew/bin/uv`
+
+If these tools are missing, install them via Homebrew:
 
 ```bash
-brew install trunk-io uv
+brew install --cask trunk-io
+brew install uv
+```
+
+**CRITICAL**: If the binaries exist in `/opt/homebrew/bin/` but are not in the current shell's `PATH`, advise the user to add it:
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
 ```
 
 ### 2. Dependency Installation
 
-Run the following command at the workspace root to install all project dependencies. Refer to [../common-references/python-commands.md](../common-references/python-commands.md) for more commands.
+Run the following command at the workspace root to install all project dependencies.
 
 ```bash
 make setup
 ```
 
-This command runs `dev/setup.sh`, which installs `uv` if needed (via pip), creates a virtual environment, and syncs dependencies.
+This command runs `dev/setup.sh`, which performs informative checks for `uv` and `trunk`, creates a virtual environment, and syncs dependencies.
 
 ### 3. Tooling Setup
 

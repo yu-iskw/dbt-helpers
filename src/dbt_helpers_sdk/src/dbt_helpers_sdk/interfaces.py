@@ -2,7 +2,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from .dbt_resource import DbtResourceIR
 from .models import CatalogRelation
-from .plan import Plan
+from .plan import PatchOp, Plan
 
 
 @runtime_checkable
@@ -78,5 +78,5 @@ class SchemaAdapter(Protocol):
     ) -> str:
         """Render a dbt snapshot SQL file."""
 
-    def calculate_patch(self, current_ir: DbtResourceIR, new_ir: DbtResourceIR) -> list[dict[str, Any]]:
+    def calculate_patch(self, current_ir: DbtResourceIR, new_ir: DbtResourceIR) -> list[PatchOp]:
         """Calculate a list of YAML patch operations to transform current_ir into new_ir."""

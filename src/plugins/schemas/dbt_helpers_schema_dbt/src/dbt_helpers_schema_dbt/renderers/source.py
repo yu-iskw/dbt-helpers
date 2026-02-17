@@ -2,8 +2,9 @@ from typing import Any
 
 import yaml
 
-from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR
+from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR, PatchOp
 
+from ..diff_engine import calculate_resource_patch
 from .base import BaseRenderer
 
 
@@ -39,12 +40,21 @@ class SourceRenderer(BaseRenderer):
             return []
 
         for source in data["sources"]:
+            source_name = source["name"]
             for table in source.get("tables", []):
                 # Normalization: Look in both config and top-level
                 config = table.get("config", {})
                 meta = table.get("meta", {})
                 if not meta:
                     meta = config.get("meta", {})
+
+                extraction_meta = {
+                    "source_name": source_name,
+                    "schema": source.get("schema"),
+                    "database": source.get("database"),
+                    "identifier": table.get("identifier"),
+                }
+                meta["_extraction_metadata"] = extraction_meta
 
                 tags = table.get("tags", [])
                 if not tags:
@@ -106,3 +116,9 @@ class SourceRenderer(BaseRenderer):
                 )
 
         return resources
+
+    def calculate_patch(self, current_ir: DbtResourceIR, new_ir: DbtResourceIR) -> list[PatchOp]:
+        """Calculate a list of YAML patch operations to transform current_ir into new_ir."""
+        source_name = current_ir.meta.get("_extraction_metadata", {}).get("source_name", "raw")
+        base_path = ["sources", {"name": source_name}, "tables", {"name": current_ir.name}]
+        return calculate_resource_patch(current_ir, new_ir, base_path)

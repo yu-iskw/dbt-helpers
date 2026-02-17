@@ -2,8 +2,9 @@ from typing import Any
 
 import yaml
 
-from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR
+from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR, PatchOp
 
+from ..diff_engine import calculate_resource_patch
 from .base import BaseRenderer
 
 
@@ -121,3 +122,8 @@ class ModelRenderer(BaseRenderer):
                 )
             )
         return resources
+
+    def calculate_patch(self, current_ir: DbtResourceIR, new_ir: DbtResourceIR) -> list[PatchOp]:
+        """Calculate a list of YAML patch operations to transform current_ir into new_ir."""
+        base_path = ["models", {"name": current_ir.name}]
+        return calculate_resource_patch(current_ir, new_ir, base_path)

@@ -38,8 +38,30 @@ done
 # Change to the module directory
 cd "${MODULE_DIR}"
 
-# Install uv and dependencies
-python3 -m pip install --force-reinstall -r "${MODULE_DIR}/requirements.setup.txt"
+# Check for required tools
+MISSING_TOOLS=()
+if ! command -v uv &>/dev/null; then
+	MISSING_TOOLS+=("uv")
+fi
+if ! command -v trunk &>/dev/null; then
+	MISSING_TOOLS+=("trunk")
+fi
+
+if [[ ${#MISSING_TOOLS[@]} -ne 0 ]]; then
+	echo "Error: Missing required tools: ${MISSING_TOOLS[*]}"
+	if [[ ${OSTYPE} == "darwin"* ]]; then
+		echo "On macOS, it is highly recommended to install these via Homebrew:"
+		echo "  brew install --cask trunk-io"
+		echo "  brew install uv"
+		echo ""
+		echo "If already installed, ensure /opt/homebrew/bin is in your PATH:"
+		# shellcheck disable=SC2016
+		echo '  export PATH="/opt/homebrew/bin:$PATH"'
+	else
+		echo "Please install these tools before running setup."
+	fi
+	exit 1
+fi
 
 # Create virtual environment
 uv venv

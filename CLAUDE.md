@@ -10,6 +10,17 @@ This is a production-ready Python package template using modern tooling:
 - **Testing**: pytest
 - **Python**: 3.10+ (see `.python-version` for current version)
 
+## Prerequisites (macOS)
+
+For the best experience on macOS, install the core tooling via Homebrew to avoid path and permission issues:
+
+```bash
+brew install --cask trunk-io
+brew install uv
+```
+
+Note: The binaries are typically located in `/opt/homebrew/bin/`. Ensure this is in your `PATH`.
+
 ## Quick Commands
 
 ```bash

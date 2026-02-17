@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from dbt_helpers_core.orchestrator import Orchestrator
-from dbt_helpers_sdk import CatalogNamespace, CatalogRelation, CreateFile, Plan
+from dbt_helpers_sdk import CatalogNamespace, CatalogRelation, CreateFile, PatchOp, Plan
 
 
 class MockWarehousePlugin:
@@ -94,7 +94,7 @@ sources:
             op = plan.ops[0]
             self.assertEqual(op.op_kind, "update_yaml_file")
             self.assertEqual(op.path, project_dir / "models/raw/sources.yml")
-            self.assertEqual(op.patch_ops, [{"content": "mock yaml"}])
+            self.assertEqual(op.patch_ops, [PatchOp(op="replace_content", value="mock yaml")])
 
     def test_orchestrator_generate_source_plan_env_vars(self):
         """Test that generate_source_plan passes correct env var patterns."""

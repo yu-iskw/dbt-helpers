@@ -69,6 +69,6 @@ class StateBuilder:
                         # but .yml might contain the schema definition
                         state.models[model_name] = file_path.relative_to(self.project_dir)
 
-        except (ruamel.yaml.YAMLError, OSError):
+        except Exception:  # pylint: disable=broad-exception-caught
             # Skip invalid YAML files or inaccessible files for now
             return
