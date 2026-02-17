@@ -9,6 +9,7 @@ requires-python = ">=3.10"
 dependencies = [
   "dbt-helpers-cli",
   "dbt-helpers-wh-duckdb",
+  "dbt-helpers-wh-bigquery",
   "dbt-helpers-schema-dbt",
 ]
 
@@ -26,6 +27,7 @@ dev = [
 [tool.uv.sources]
 dbt-helpers-cli = { workspace = true }
 dbt-helpers-wh-duckdb = { workspace = true }
+dbt-helpers-wh-bigquery = { workspace = true }
 dbt-helpers-schema-dbt = { workspace = true }
 
 [tool.uv]
@@ -66,7 +68,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**/*.py" = ["S101"]
+"**/tests/**/*.py" = ["S101", "PT027"]
 "**/tests/integration/conftest.py" = ["S603", "S607"]
 
 [tool.ruff.pydocstyle]
@@ -79,6 +81,7 @@ known-first-party = [
   "dbt_helpers_sdk",
   "dbt_helpers_schema_dbt",
   "dbt_helpers_wh_duckdb",
+  "dbt_helpers_wh_bigquery",
 ]
 
 [tool.mypy]

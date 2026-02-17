@@ -48,12 +48,14 @@ test:
 	$(MAKE) -C src/dbt_helpers_core test
 	$(MAKE) -C src/dbt_helpers_cli test
 	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_duckdb test
+	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_bigquery test
 	$(MAKE) -C src/plugins/schemas/dbt_helpers_schema_dbt test
 
 # Run the integration tests.
 .PHONY: test-integration
 test-integration:
 	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_duckdb test-integration
+	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_bigquery test-integration
 
 # Build the package
 .PHONY: build
