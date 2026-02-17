@@ -1,0 +1,40 @@
+version: 2
+
+snapshots:
+{%- for res in resources %}
+  - name: {{ res.name }}
+    description: "{{ res.description or '' }}"
+    config:
+      enabled: true
+      full_refresh: none
+{%- if database %}
+      database: "{{ database }}"
+{%- endif %}
+{%- if res.meta %}
+    meta:
+{{ res.meta | to_yaml | indent(6, first=True) }}
+{%- endif %}
+{%- if res.tags %}
+    tags:
+{{ res.tags | to_yaml | indent(6, first=True) }}
+{%- endif %}
+{%- if res.columns %}
+    columns:
+{%- for col in res.columns %}
+      - name: {{ col.name }}
+        description: "{{ col.description or '' }}"
+{%- if col.meta %}
+        meta:
+{{ col.meta | to_yaml | indent(10, first=True) }}
+{%- endif %}
+{%- if col.tags %}
+        tags:
+{{ col.tags | to_yaml | indent(10, first=True) }}
+{%- endif %}
+{%- if col.tests %}
+        tests:
+{{ col.tests | to_yaml | indent(10, first=True) }}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+{%- endfor %}

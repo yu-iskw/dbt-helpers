@@ -10,6 +10,17 @@ This is a production-ready Python package template using modern tooling:
 - **Testing**: pytest
 - **Python**: 3.10+ (see `.python-version` for current version)
 
+## Prerequisites (macOS)
+
+For the best experience on macOS, install the core tooling via Homebrew to avoid path and permission issues:
+
+```bash
+brew install --cask trunk-io
+brew install uv
+```
+
+Note: The binaries are typically located in `/opt/homebrew/bin/`. Ensure this is in your `PATH`.
+
 ## Quick Commands
 
 ```bash
@@ -25,16 +36,21 @@ make clean      # Clean build artifacts
 
 - Follow Google Python Style Guide (configured in `.pylintrc`)
 - Use type hints for all public functions
-- Imports sorted by isort (stdlib, third-party, local)
-- Max line length: 100 characters (Ruff/Black configured)
+- Imports sorted by Ruff (configured in `pyproject.toml`)
+- Max line length: 120 characters (Ruff/Black configured)
 - Use `snake_case` for functions/variables, `PascalCase` for classes
 
 ## Testing
 
-- Write tests in `tests/` directory
-- Test files must match pattern `test_*.py`
-- Run `make test` before committing
-- Aim for meaningful test coverage on critical paths
+- **Standardization**: All unit and integration tests MUST use `unittest.TestCase` (ADR 0015, 0017).
+- **Assertions**: Use `self.assert*` methods instead of bare `assert`.
+- **Location**: Unit tests in `tests/unit/`, integration tests in `tests/integration/` of each package (ADR 0009).
+- **Integration Strategy**:
+  - **Scenario-Driven**: Use `Scenario` (code-based) or `DirectoryScenario` (disk-based) for warehouse testing (ADR 0031, 0032).
+  - **Multi-Version**: Integration tests parameterized across dbt versions/flavors via `pytest` and Docker (ADR 0033).
+- **Runners**:
+  - `make test`: Runs `pytest` across the monorepo.
+  - `nox`: Used for running the multi-version dbt matrix.
 
 ## Git Workflow
 
@@ -46,11 +62,31 @@ make clean      # Clean build artifacts
 
 ## Architecture
 
-- Source code in `src/your_package/` (rename during initialization)
-- Development scripts in `dev/`
-- CI/CD workflows in `.github/workflows/`
-- Claude Code configuration in `.claude/`
-- Document significant design decisions as Architecture Decision Records (ADRs) in `docs/adr`; use the `manage-adr` skill when `adr` is available
+- **Hexagonal Architecture**: Plugin-based design with a stable Core, SDK (Ports/IR), and Adapters (ADR 0002).
+- **Monorepo Layout**:
+  - `src/dbt_helpers_core/`: Domain logic, orchestrator, and workflows (ADR 0024).
+  - `src/dbt_helpers_sdk/`: Stable contracts, IR types, and Plan API (ADR 0025).
+  - `src/dbt_helpers_cli/`: Modular CLI command structure (ADR 0014).
+  - `src/plugins/`: Categorized adapters (ADR 0007).
+    - `warehouses/`: DuckDB, BigQuery, Snowflake.
+    - `tools/`: Lightdash, Elementary.
+    - `schemas/`: dbt Core version adapters.
+- **Workflow**: Two-phase "Plan and Apply" (ADR 0034).
+  - Phase 1: Planning (`model scaffold`, `source sync`) generates a serialized JSON plan.
+  - Phase 2: Application (`dbth apply`) executes the plan after review.
+- **Resource Management**: IR-centric management; dbt 1.10+ only (ADR 0025).
+- **Naming**: Warehouse-driven resource naming (ADR 0030).
+- **Config**: Standardized SQL/YAML configuration blocks (ADR 0026, 0027).
+- **Decision Records**: Significant design decisions recorded in `docs/adr/`.
+
+## Significant ADRs
+
+- **ADR 0002**: Hexagonal Architecture & Plugin SDK.
+- **ADR 0015/0017**: Standardize on `unittest.TestCase` for all tests.
+- **ADR 0025**: IR-Centric Resource Management & dbt 1.10+ requirement.
+- **ADR 0031/0032**: Scenario-Driven Integration Testing.
+- **ADR 0033**: Multi-Version dbt & Fusion Integration Testing.
+- **ADR 0034**: Separate Plan and Apply Phases.
 
 ## Common Gotchas
 
@@ -71,22 +107,29 @@ This decomposes tasks into independent subtasks with file ownership, executes th
 
 ## Available Agents
 
-| Agent                    | Purpose                              |
-| ------------------------ | ------------------------------------ |
-| `verifier`               | Run build → lint → test cycle        |
-| `code-reviewer`          | Review code for quality and security |
-| `parallel-executor`      | Orchestrate parallel task execution  |
-| `parallel-tasks-planner` | Plan task decomposition              |
-| `task-worker`            | Execute isolated subtasks            |
+| Agent               | Purpose                                                         |
+| :------------------ | :-------------------------------------------------------------- |
+| `verifier`          | Run build → lint → test cycle across monorepo                   |
+| `code-reviewer`     | Review code for quality, security, and ADR compliance           |
+| `plugin-engineer`   | Specialist for building/testing plugins (Warehouse/Tool/Schema) |
+| `schema-specialist` | Specialist for dbt YAML version adapters and IR mapping         |
+| `sdk-architect`     | Specialist for SDK contracts and IR types                       |
+| `parallel-executor` | Orchestrate parallel task execution                             |
+
+See [AGENTS.md](AGENTS.md) for the full catalog of specialized agents.
 
 ## Available Skills
 
 Use these when the corresponding CLI is available (`adr`, `changie`):
 
-| Skill              | Purpose                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| `manage-adr`       | Manage Architecture Decision Records (init, create, list, link ADRs in `docs/adr`)            |
-| `manage-changelog` | Manage changelogs with Changie (init, add fragments, batch releases, merge into CHANGELOG.md) |
+| Skill                         | Purpose                                             |
+| :---------------------------- | :-------------------------------------------------- |
+| `dbt-helpers-plugin-scaffold` | Scaffold and standardize new dbt-helpers plugins    |
+| `dbt-helpers-golden-e2e`      | Run End-to-End tests using golden output comparison |
+| `manage-adr`                  | Manage Architecture Decision Records in `docs/adr`  |
+| `manage-changelog`            | Manage changelogs with Changie                      |
+
+See [AGENTS.md](AGENTS.md) for the full catalog of specialized skills.
 
 ## Self-Improvement
 
@@ -97,3 +140,8 @@ This project supports Claude Code self-improvement. When you notice:
 - Patterns that should be automated, add hooks in `.claude/settings.json`
 
 Use `/improve-claude-config` skill to help Claude evolve its own configuration.
+
+## Documentation Synchronization
+
+- **ADR-Doc Sync**: After creating or modifying an ADR, ALWAYS perform a sync pass to update `CLAUDE.md` and `AGENTS.md` to reflect the new architectural state.
+- **Skill-Doc Sync**: After creating or modifying a skill, ensure it is documented in `AGENTS.md`.

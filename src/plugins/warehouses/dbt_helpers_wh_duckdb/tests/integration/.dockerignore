@@ -1,0 +1,43 @@
+# Exclude test files and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+venv/
+env/
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Exclude git files
+.git/
+.gitignore
+
+# Exclude Docker files themselves
+Dockerfile
+.dockerignore
+
+# Exclude logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Keep fixtures directory structure but exclude build artifacts
+fixtures/sample_project/target/
+fixtures/sample_project/logs/
+fixtures/sample_project/.dbt/

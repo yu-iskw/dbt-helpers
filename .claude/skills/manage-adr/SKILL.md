@@ -62,6 +62,14 @@ adr link 12 Amends 10 "Amended by"
 - Generate a Table of Contents: `adr generate toc`
 - Generate a dependency graph (requires Graphviz): `adr generate graph | dot -Tpng -o adr-graph.png`
 
+## Documentation Synchronization
+
+**IMPORTANT**: After creating or superseding an ADR, you MUST perform a synchronization pass:
+
+1. Update `CLAUDE.md` if the decision affects core architectural rules, testing standards, or monorepo structure.
+2. Update `AGENTS.md` if the decision introduces new agents, skills, or modifies existing responsibilities.
+3. Refer to the "Documentation Synchronization" section in `CLAUDE.md` for details.
+
 ## Best Practices
 
 - Keep ADRs focused on a single decision.

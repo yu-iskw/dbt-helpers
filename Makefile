@@ -44,7 +44,16 @@ format:
 # Run the unit tests.
 .PHONY: test
 test:
-	bash ./dev/test_python.sh
+	$(MAKE) -C src/dbt_helpers_sdk test
+	$(MAKE) -C src/dbt_helpers_core test
+	$(MAKE) -C src/dbt_helpers_cli test
+	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_duckdb test
+	$(MAKE) -C src/plugins/schemas/dbt_helpers_schema_dbt test
+
+# Run the integration tests.
+.PHONY: test-integration
+test-integration:
+	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_duckdb test-integration
 
 # Build the package
 .PHONY: build

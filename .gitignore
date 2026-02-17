@@ -173,3 +173,10 @@ cython_debug/
 # Claude Code local configurations (personal overrides)
 .claude/settings.local.json
 CLAUDE.local.md
+
+.todo_list/
+
+tmp*
+
+.tests/
+.ruff_cache/
