@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class DbtColumnIR(BaseModel):
     name: str
     description: str | None = None
+    data_type: str | None = None
     meta: dict[str, Any] = Field(default_factory=dict)
     tags: list[str] = Field(default_factory=list)
     tests: list[dict[str, Any]] = Field(default_factory=list)

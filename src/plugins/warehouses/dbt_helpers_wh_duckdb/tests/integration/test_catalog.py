@@ -14,12 +14,12 @@ class TestDuckDBCatalog(DuckDBIntegrationTestCase):
         # dbt default schema for DuckDB is 'main'
         relations = plugin.read_catalog(["main"], connection_config={})
 
-        self.assertGreaterEqual(len(relations), 1)
+        assert len(relations) >= 1
 
         users_rel = next((r for r in relations if r.name == "users"), None)
-        self.assertIsNotNone(users_rel)
-        self.assertEqual(users_rel.namespace.parts, ["main"])
+        assert users_rel is not None
+        assert users_rel.namespace.parts == ["main"]
 
         col_names = [c.name for c in users_rel.columns]
-        self.assertIn("id", col_names)
-        self.assertIn("name", col_names)
+        assert "id" in col_names
+        assert "name" in col_names

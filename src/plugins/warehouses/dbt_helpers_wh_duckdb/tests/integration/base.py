@@ -1,54 +1,32 @@
-import os
-import tempfile
-import unittest
 from pathlib import Path
 
-from dbt_helpers_core.testing import IntegrationTestCase
-
-from .conftest import _docker_available, _run_dbt_docker, _run_dbt_local
+import pytest
 
 
-class DuckDBIntegrationTestCase(IntegrationTestCase):
-    """Base class for DuckDB integration tests."""
+class DuckDBIntegrationTestCase:
+    """Base class for DuckDB integration tests using pytest.
+
+    This class provides common setup for DuckDB integration tests.
+    It uses pytest fixtures for temporary directories and database generation.
+    """
 
     db_path: Path
-    _static_db_path: Path | None = None
+    tmp_path: Path
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Set up the DuckDB database once for the class."""
-        super().setUpClass()
+    @pytest.fixture(autouse=True)
+    def _setup_fixtures(self, tmp_path: Path, dbt_duckdb_container: Path):
+        """Internal fixture to inject dependencies."""
+        self.tmp_path = tmp_path
+        self.db_path = dbt_duckdb_container
 
-        # We simulate the session-scoped fixture logic here.
-        # For simplicity in this migration, we'll run it once per class.
-        # In a real project, you might want a more global cache if it's too slow.
+    def create_project(self, project_name: str, files: dict[str, str]) -> Path:
+        """Helper to create a dbt project structure with specified files."""
+        project_dir = self.tmp_path / project_name
+        project_dir.mkdir(parents=True, exist_ok=True)
 
-        fixture_path = Path(__file__).parent / "fixtures" / "sample_project"
+        for rel_path, content in files.items():
+            file_path = project_dir / rel_path
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            file_path.write_text(content, encoding="utf-8")
 
-        # We need a stable temp dir for the DB file during the class run
-        cls._db_temp_dir = tempfile.TemporaryDirectory()
-        db_dir = Path(cls._db_temp_dir.name)
-        cls.db_path = db_dir / "dev.duckdb"
-
-        use_docker = os.environ.get("USE_DOCKER", "false").lower() == "true"
-
-        if use_docker:
-            if not _docker_available():
-                # In unittest, we use skipTest
-                raise unittest.SkipTest("Docker not available")
-
-            # We need a tmp_path_factory like object. tempfile.mkdtemp works.
-            class FakeFactory:
-                def mktemp(self, name):
-                    return Path(tempfile.mkdtemp(prefix=name))
-
-            _run_dbt_docker(fixture_path, cls.db_path, FakeFactory())
-        else:
-            _run_dbt_local(fixture_path, cls.db_path, db_dir)
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Clean up the database."""
-        if hasattr(cls, "_db_temp_dir"):
-            cls._db_temp_dir.cleanup()
-        super().tearDownClass()
+        return project_dir

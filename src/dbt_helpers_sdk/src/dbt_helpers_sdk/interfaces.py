@@ -31,11 +31,52 @@ class SchemaAdapter(Protocol):
         target_version: str,
         source_name: str = "raw",
         database: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> str:
         """Render dbt resources into a YAML string for a specific dbt version."""
 
-    def render_model_yaml(self, resources: list[DbtResourceIR], target_version: str) -> str:
+    def render_model_yaml(
+        self,
+        resources: list[DbtResourceIR],
+        target_version: str,
+        database: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> str:
         """Render dbt models into a YAML string for a specific dbt version."""
+
+    def render_model_sql(
+        self,
+        resource: DbtResourceIR,
+        database: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> str:
+        """Render a dbt model SQL file."""
+
+    def render_model_doc(
+        self,
+        resource: DbtResourceIR,
+        context: dict[str, Any] | None = None,
+    ) -> str:
+        """Render a dbt model documentation (Markdown) file."""
 
     def parse_source_yaml(self, content: str) -> list[DbtResourceIR]:
         """Parse dbt resource YAML into version-agnostic IR."""
+
+    def parse_model_yaml(self, content: str) -> list[DbtResourceIR]:
+        """Parse dbt model YAML into version-agnostic IR."""
+
+    def render_snapshot_yaml(
+        self,
+        resources: list[DbtResourceIR],
+        target_version: str,
+        database: str | None = None,
+    ) -> str:
+        """Render dbt snapshots into a YAML string for a specific dbt version."""
+
+    def render_snapshot_sql(
+        self, resource: DbtResourceIR, config: dict[str, Any], database: str | None = None
+    ) -> str:
+        """Render a dbt snapshot SQL file."""
+
+    def calculate_patch(self, current_ir: DbtResourceIR, new_ir: DbtResourceIR) -> list[dict[str, Any]]:
+        """Calculate a list of YAML patch operations to transform current_ir into new_ir."""

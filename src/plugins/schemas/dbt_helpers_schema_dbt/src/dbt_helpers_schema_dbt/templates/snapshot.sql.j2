@@ -1,0 +1,26 @@
+{%- set source_name = resource.meta.get('_extraction_metadata', {}).get('source_name', 'default') -%}
+{{ '{% snapshot ' ~ resource.name ~ ' %}' }}
+
+{{ '{{' }}
+  config(
+    enabled=true,
+    full_refresh=none,
+{%- if database %}
+    database={{ database | replace('{{', '') | replace('}}', '') | trim }},
+{%- endif %}
+    alias="{{ resource.name }}",
+{%- if resource.tags %}
+    tags={{ resource.tags | tojson }},
+{%- endif %}
+{%- if resource.meta %}
+    labels={{ resource.meta | tojson }},
+{%- endif %}
+{%- for key, value in config.items() %}
+    {{ key }}={{ value | tojson }}{{ "," if not loop.last }}
+{%- endfor %}
+  )
+{{ '}}' }}
+
+select * from {{ "{{ source('" ~ source_name ~ "', '" ~ resource.name ~ "') }}" }}
+
+{% raw %}{% endsnapshot %}{% endraw %}

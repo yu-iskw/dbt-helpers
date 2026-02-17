@@ -45,7 +45,7 @@ target_version: "fusion"
 
         # First run
         plan1 = orchestrator.generate_source_plan(["main"])
-        self.assertGreaterEqual(len(plan1.ops), 1)  # Should create some files
+        assert len(plan1.ops) >= 1  # Should create some files
 
         # Simulate applying the first plan by creating the files
         for op in plan1.ops:
@@ -61,21 +61,21 @@ target_version: "fusion"
         print(f"First plan ops: {len(plan1.ops)}, Second plan ops: {len(plan2.ops)}")
 
         # For now, just verify it doesn't crash
-        self.assertIsInstance(plan2, plan1.__class__)
+        assert isinstance(plan2, plan1.__class__)
 
     def test_docker_idempotency(self):
         """Test that running Docker-based dbt build produces valid database files."""
-        # Note: We use the db_path from setUpClass which might be Docker-based if USE_DOCKER=true
+        # Note: We use the db_path from setup which might be Docker-based if USE_DOCKER=true
         db_path = self.db_path
 
         # Verify database file exists
-        self.assertTrue(db_path.exists(), f"Database file not found at {db_path}")
+        assert db_path.exists(), f"Database file not found at {db_path}"
 
         # Calculate hash
         db_hash = _file_hash(db_path)
 
         # Verify database has expected content (not empty)
-        self.assertGreater(db_path.stat().st_size, 0, "Database file is empty")
+        assert db_path.stat().st_size > 0, "Database file is empty"
 
         print(f"Database file hash: {db_hash}")
         print(f"Database file size: {db_path.stat().st_size} bytes")
@@ -84,13 +84,13 @@ target_version: "fusion"
         plugin = DuckDBWarehousePlugin(db_path=str(db_path))
         relations = plugin.read_catalog(["main"], connection_config={})
 
-        self.assertGreaterEqual(len(relations), 1, "Should have at least one relation")
+        assert len(relations) >= 1, "Should have at least one relation"
 
         # Verify idempotency by checking that reading twice produces same results
         relations2 = plugin.read_catalog(["main"], connection_config={})
-        self.assertEqual(len(relations), len(relations2), "Catalog reads should be idempotent")
+        assert len(relations) == len(relations2), "Catalog reads should be idempotent"
 
         # Verify relations are identical
         rel_names1 = {r.name for r in relations}
         rel_names2 = {r.name for r in relations2}
-        self.assertEqual(rel_names1, rel_names2, "Relation names should be identical")
+        assert rel_names1 == rel_names2, "Relation names should be identical"

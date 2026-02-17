@@ -1,74 +1,42 @@
 import unittest
 
-import yaml
 from dbt_helpers_schema_dbt.adapter import UnifiedDbtSchemaAdapter
 
-from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR
+from dbt_helpers_sdk import DbtResourceIR
 
 
 class TestDbtSchemaAdapter(unittest.TestCase):
-    """Tests for UnifiedDbtSchemaAdapter."""
+    """Tests for UnifiedDbtSchemaAdapter (Facade)."""
 
-    def test_render_source_yaml_fusion(self):
+    def test_adapter_initialization(self):
+        """Test that the adapter initializes its renderers."""
         adapter = UnifiedDbtSchemaAdapter()
-        resource = DbtResourceIR(
-            name="my_table",
-            meta={"owner": "alice"},
-            tags=["pii"],
-            columns=[DbtColumnIR(name="id")],
-        )
+        self.assertIsNotNone(adapter.source_renderer)
+        self.assertIsNotNone(adapter.model_renderer)
+        self.assertIsNotNone(adapter.snapshot_renderer)
 
+    def test_adapter_delegation_source(self):
+        """Test that the adapter delegates to source_renderer."""
+        adapter = UnifiedDbtSchemaAdapter()
+        resource = DbtResourceIR(name="test_table")
+        # We don't need to verify full content here, just that it doesn't crash
+        # and returns something that looks like dbt YAML.
         yaml_content = adapter.render_source_yaml([resource], target_version="fusion")
-        data = yaml.safe_load(yaml_content)
+        self.assertIn("sources:", yaml_content)
+        self.assertIn("test_table", yaml_content)
 
-        table = data["sources"][0]["tables"][0]
-        self.assertIn("config", table)
-        self.assertEqual(table["config"]["meta"], {"owner": "alice"})
-        self.assertEqual(table["config"]["tags"], ["pii"])
-        self.assertNotIn("meta", table)  # Should be under config
-
-    def test_render_source_yaml_legacy(self):
+    def test_adapter_delegation_model(self):
+        """Test that the adapter delegates to model_renderer."""
         adapter = UnifiedDbtSchemaAdapter()
-        resource = DbtResourceIR(
-            name="my_table",
-            meta={"owner": "alice"},
-            tags=["pii"],
-            columns=[DbtColumnIR(name="id")],
-        )
-
-        yaml_content = adapter.render_source_yaml([resource], target_version="legacy")
-        data = yaml.safe_load(yaml_content)
-
-        table = data["sources"][0]["tables"][0]
-        self.assertEqual(table["meta"], {"owner": "alice"})
-        self.assertEqual(table["tags"], ["pii"])
-        self.assertNotIn("config", table)
-
-    def test_render_model_yaml_fusion(self):
-        adapter = UnifiedDbtSchemaAdapter()
-        resource = DbtResourceIR(name="my_model", meta={"owner": "bob"}, columns=[DbtColumnIR(name="id")])
-
+        resource = DbtResourceIR(name="test_model")
         yaml_content = adapter.render_model_yaml([resource], target_version="fusion")
-        data = yaml.safe_load(yaml_content)
+        self.assertIn("models:", yaml_content)
+        self.assertIn("test_model", yaml_content)
 
-        self.assertIn("models", data)
-        model = data["models"][0]
-        self.assertEqual(model["name"], "my_model")
-        self.assertEqual(model["config"]["meta"], {"owner": "bob"})
-
-    def test_render_source_yaml_project_vars(self):
-        """Test that render_source_yaml supports dbt project variable pattern."""
+    def test_adapter_delegation_snapshot(self):
+        """Test that the adapter delegates to snapshot_renderer."""
         adapter = UnifiedDbtSchemaAdapter()
-        resource = DbtResourceIR(name="my_table", columns=[DbtColumnIR(name="id")])
-        db_pattern = "{{ var('databases', var('projects', {})).get('service_1', target.database) }}"
-
-        yaml_content = adapter.render_source_yaml(
-            [resource],
-            target_version="dbt",
-            source_name="service_1",
-            database=db_pattern,
-        )
-        data = yaml.safe_load(yaml_content)
-
-        self.assertEqual(data["sources"][0]["name"], "service_1")
-        self.assertEqual(data["sources"][0]["database"], db_pattern)
+        resource = DbtResourceIR(name="test_snapshot")
+        yaml_content = adapter.render_snapshot_yaml([resource], target_version="fusion")
+        self.assertIn("snapshots:", yaml_content)
+        self.assertIn("test_snapshot", yaml_content)

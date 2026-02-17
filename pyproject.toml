@@ -82,6 +82,14 @@ warn_unused_ignores = true
 module = "yaml"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "testcontainers.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "docker"
+ignore_missing_imports = true
+
 [tool.bandit]
 skips = ["B101"]
 exclude_dirs = []

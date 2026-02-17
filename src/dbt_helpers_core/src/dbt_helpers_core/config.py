@@ -17,10 +17,13 @@ class ProjectConfig(BaseModel):
 
     warehouse: WarehouseConfig
     target_version: str = "fusion"  # Default to fusion
+    owner: str = "data-engineering"
+    project_alias_map: dict[str, str] = Field(default_factory=dict)
     paths: dict[str, str] = Field(
         default_factory=lambda: {
             "model": "models/{{ schema }}/{{ table }}.sql",
             "model_yaml": "models/{{ schema }}/{{ table }}.yml",
+            "model_doc": "models/{{ schema }}/{{ table }}.md",
             "source": "models/{{ schema }}/sources.yml",
             "snapshot": "snapshots/{{ table }}.sql",
             "snapshot_yaml": "snapshots/{{ table }}.yml",

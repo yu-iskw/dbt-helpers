@@ -39,7 +39,8 @@ dbt-helpers/
 │       │   └── dbt_helpers_wh_duckdb/    # DuckDB warehouse adapter
 │       ├── tools/
 │       │   ├── dbt_helpers_tool_lightdash/ # Lightdash integration
-│       │   └── dbt_helpers_tool_elementary/ # Elementary integration
+│       │   ├── dbt_helpers_tool_elementary/ # Elementary integration
+│       │   └── dbt_helpers_tool_privacy/  # Data privacy and PII masking
 │       └── schemas/
 │           ├── dbt_helpers_schema_v2/    # dbt Core 1.10+ schema adapter
 │           └── dbt_helpers_schema_fusion/ # dbt Fusion schema adapter
@@ -89,8 +90,10 @@ Uses a hierarchical namespace model that degrades gracefully.
 
 The `metadata` field enables a **Producer/Consumer pattern** for plugin collaboration:
 
-- **Producers**: Warehouse plugins attach warehouse-specific details (e.g., `bigquery.partition_info`).
-- **Consumers**: Tool plugins (like Lightdash) read these details to automate configuration (e.g., setting default filters).
+- **Producers**: Warehouse plugins attach warehouse-specific details (e.g., `bigquery.partition_info`, `bigquery.policy_tags`).
+- **Consumers**:
+  - Tool plugins (like Lightdash) read these details to automate configuration (e.g., setting default filters).
+  - The Privacy tool reads `policy_tags` to suggest dbt-level data privacy classifications.
 
 #### 2. dbt Resource IR
 
@@ -177,6 +180,14 @@ tools:
     enabled: true
   elementary:
     enabled: true
+  privacy:
+    enabled: true
+    objectives:
+      data_analysis:
+        data_handling_standards:
+          confidential:
+            method: SHA256
+            converted_level: internal
 ```
 
 ### Path and Naming Policy
@@ -221,7 +232,9 @@ To support different dbt property schemas (e.g., dbt Core 1.10+ vs. dbt Fusion),
 ### Safety & Governance
 
 - **Capability-based Access**: Plugins only get a `CatalogClient` with specific, logged capabilities. No arbitrary SQL execution by default.
+- **Impersonated Authentication**: For BigQuery, the system supports Service Account impersonation. This ensures that the orchestrator (or the user running it) only acquires short-lived credentials with specific scopes, providing a hardened audit trail.
 - **Path Sandboxing**: Core enforces that all file operations occur within the project root.
+- **Privacy Protected Models**: The Privacy tool plugin automates the creation of "masked" dbt models. By consuming metadata from the catalog and existing dbt resources, it generates SQL views that apply hashing (e.g., SHA256) or drop sensitive columns, ensuring that PII never reaches downstream consumers.
 - **Audit Logging**: Every action, catalog call, and file change is recorded in a JSONL audit log.
 
 ### YAML Editing Strategy

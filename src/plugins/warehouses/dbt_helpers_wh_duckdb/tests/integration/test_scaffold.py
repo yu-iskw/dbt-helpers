@@ -31,14 +31,14 @@ target_version: "fusion"
         # The dbt_duckdb_container should have 'users' table in 'main'
         plan = orchestrator.scaffold_models(["main"])
 
-        self.assertIsInstance(plan, Plan)
-        self.assertGreaterEqual(len(plan.ops), 2)
+        assert isinstance(plan, Plan)
+        assert len(plan.ops) >= 2
 
         # Verify SQL file content
         sql_op = next(op for op in plan.ops if str(op.path).endswith("users.sql"))
-        self.assertIn("source('main', 'users')", sql_op.content)
+        assert "source('main', 'main__main__users')" in sql_op.content
 
         # Verify YAML file content
         yml_op = next(op for op in plan.ops if str(op.path).endswith("users.yml"))
-        self.assertIn("models:", yml_op.content)
-        self.assertIn("name: users", yml_op.content)
+        assert "models:" in yml_op.content
+        assert "name: users" in yml_op.content

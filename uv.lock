@@ -524,11 +524,15 @@ name = "dbt-helpers-sdk"
 version = "0.1.0"
 source = { editable = "src/dbt_helpers_sdk" }
 dependencies = [
+    { name = "jinja2" },
     { name = "pydantic" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pydantic", specifier = ">=2.0.0" }]
+requires-dist = [
+    { name = "jinja2", specifier = ">=3.0.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+]
 
 [[package]]
 name = "dbt-helpers-wh-duckdb"

@@ -1,14 +1,34 @@
 FROM python:3.12-slim
 
-# Install dbt-duckdb and dependencies
-RUN pip install --no-cache-dir dbt-duckdb ruamel.yaml
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Use DBT_FLAVOR (core, fusion) and DBT_VERSION build args
+ARG DBT_FLAVOR=core
+ARG DBT_VERSION=1.11
+
+# Set up environment for dbt Fusion if needed
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Conditional installation logic
+RUN if [ "$DBT_FLAVOR" = "core" ]; then \
+        pip install --no-cache-dir "dbt-duckdb~=${DBT_VERSION}.0" ruamel.yaml; \
+    elif [ "$DBT_FLAVOR" = "fusion" ]; then \
+        curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh && \
+        pip install --no-cache-dir ruamel.yaml && \
+        cp /root/.local/bin/dbt /usr/local/bin/dbt 2>/dev/null || true; \
+    else \
+        echo "Unknown DBT_FLAVOR: $DBT_FLAVOR" && exit 1; \
+    fi
 
 # Set working directory
 WORKDIR /workspace
 
 # Copy the sample project fixture into the image
-# This allows the container to run independently if needed
-# When running via testcontainers, volumes can override this
 COPY fixtures/sample_project /workspace
 
 # Non-root user for security scanners (Trivy DS002)
@@ -20,5 +40,4 @@ HEALTHCHECK NONE
 
 # Default command: build the dbt project
 # This will generate the .duckdb file
-# The output path can be overridden via DBT_PROFILES_DIR environment variable
 ENTRYPOINT ["dbt", "build", "--project-dir", "/workspace"]

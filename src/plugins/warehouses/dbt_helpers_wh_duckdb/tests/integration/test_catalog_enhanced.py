@@ -15,10 +15,10 @@ class TestDuckDBCatalogEnhanced(DuckDBIntegrationTestCase):
         relations = plugin.read_catalog(["main"], connection_config={})
 
         # Verify we got multiple relations
-        self.assertGreaterEqual(len(relations), 1)
+        assert len(relations) >= 1
 
         for rel in relations:
-            self.assertEqual(rel.namespace.parts, ["main"])
-            self.assertGreaterEqual(len(rel.columns), 1)
+            assert rel.namespace.parts == ["main"]
+            assert len(rel.columns) >= 1
             for col in rel.columns:
-                self.assertIsNotNone(col.data_type)
+                assert col.data_type is not None
