@@ -1,6 +1,0 @@
-default:
-  outputs:
-    dev:
-      type: duckdb
-      path: /tmp/dev.duckdb
-  target: dev

@@ -1,8 +1,10 @@
+import pytest
 from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 from .base import DuckDBIntegrationTestCase
 
 
+@pytest.mark.parametrize("scenario_name", ["sample_project"], indirect=True)
 class TestDuckDBCatalogEnhanced(DuckDBIntegrationTestCase):
     """Enhanced catalog tests with DuckDB."""
 

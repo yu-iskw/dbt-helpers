@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 
+import pytest
 from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 from dbt_helpers_core.orchestrator import Orchestrator
@@ -17,6 +18,7 @@ def _file_hash(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 
+@pytest.mark.parametrize("scenario_name", ["sample_project"], indirect=True)
 class TestDuckDBIdempotency(DuckDBIntegrationTestCase):
     """Test idempotency of DuckDB operations."""
 
