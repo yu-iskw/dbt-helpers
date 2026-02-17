@@ -18,9 +18,12 @@ class ModelRenderer(BaseRenderer):
         context: dict[str, Any] | None = None,
     ) -> str:
         """Render dbt resources into a model YAML string."""
+        if not resources:
+            return ""
         template = self.env.get_template("model.yml.j2")
         return str(
             template.render(
+                resource=resources[0],
                 resources=resources,
                 target_version=target_version,
                 database=database,

@@ -16,13 +16,13 @@ models:
         # Lightdash
         group_label: "{{ context.project_alias }}/{{ context.dataset }}"
         label: "{{ resource.name }}"
-      {%- if resource.meta | length > 0 %}
-      {%- for k, v in resource.meta.items() %}
-      {%- if k != '_extraction_metadata' %}
-        {{- k -}}: "{{- v -}}"
-      {%- endif %}
-      {%- endfor %}
-      {%- endif %}
+      {% if resource.meta | length > 0 %}
+      {% for k, v in resource.meta.items() %}
+      {% if k != '_extraction_metadata' and k not in ['owner', 'contains_pii', 'group_label', 'label'] %}
+        {{ k }}: "{{ v }}"
+      {% endif %}
+      {% endfor %}
+      {% endif %}
 
     # data_tests:
     #   # see also https://github.com/dbt-labs/dbt-utils#unique_combination_of_columns-source
