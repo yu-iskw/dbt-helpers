@@ -24,7 +24,7 @@ To ensure reliable and reproducible CI/CD runs, we need a standardized way to pr
 We will standardize on using official GitHub Actions for provisioning `uv` and `trunk` at the beginning of each relevant job.
 
 1. **Use \`astral-sh/setup-uv@v5\`**: This is the official action for installing the \`uv\` package manager. We will use it to ensure \`uv\` is available for dependency management and running scripts.
-2. **Use \`trunk-io/trunk-action@v1\`**: This is the official action for installing and running the \`trunk\` CLI. While primarily used for linting, it also manages various other tools hermetically.
+2. **Use \`trunk-io/trunk-action/setup@v1\`**: This is the official action for installing the \`trunk\` CLI without running full checks. This is preferred when we only need the CLI to be available for other scripts. For full linting jobs, we continue to use \`trunk-io/trunk-action@v1\`.
 3. **Sequence**: These setup steps will be placed before any scripts that rely on these tools (e.g., \`bash dev/setup.sh\`).
 
 ## Consequences
