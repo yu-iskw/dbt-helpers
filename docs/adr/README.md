@@ -36,4 +36,4 @@ This directory contains the Architecture Decision Records for the dbt-helpers pr
 | 0030 | [30. Warehouse-Driven dbt Resource Naming](0030-warehouse-driven-dbt-naming.md)                                           | Proposed | 2026-02-16 |
 | 0031 | [31. Scenario-Driven Integration Testing for Warehouse Plugins](0031-scenario-driven-integration-testing.md)              | Proposed | 2026-02-17 |
 | 0032 | [32. Directory-Based Integration Fixtures for Warehouse Plugins](0032-directory-based-integration-fixtures.md)            | Accepted | 2026-02-17 |
-| 0033 | [33. Multi-Version dbt & Fusion Integration Testing](0033-multi-version-dbt-integration-testing.md)                       | Proposed | 2026-02-17 |
+| 0033 | [33. Multi-Version dbt & Fusion Integration Testing](0033-multi-version-dbt-integration-testing.md)                       | Accepted | 2026-02-17 |

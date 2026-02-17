@@ -107,16 +107,31 @@ def _run_dbt_docker(
     )
 
     with container:
-        # Wait for dbt build to complete
-        with contextlib.suppress(Exception):  # pylint: disable=broad-exception-caught
-            wait_for_logs(container, "Completed successfully", timeout=60)
+        # Wait for container to finish. wait_for_logs isn't ideal for a process that exits.
+        # Instead, we can poll for container status or just wait.
+        # For now, let's just wait for the logs to appear, but with a more robust pattern.
+        try:
+            # dbt 1.8+ shows "Done. PASS=... ERROR=... SKIP=... TOTAL=..."
+            # or just "Finished running ..."
+            wait_for_logs(container, "Finished running", timeout=60)
+        except Exception as e:
+            # If log waiting fails, it might be because the container exited too fast.
+            # We'll check if the output file exists anyway.
+            print(f"Warning: wait_for_logs failed: {e}")
 
-        # Copy database file from container output to final location
-        if container_db_path.exists():
-            shutil.copy(container_db_path, db_path)
+        # Ensure container has stopped and we can read the file
+        # Testcontainers handles stopping in __exit__
+
+    # Copy database file from container output to final location
+    if container_db_path.exists():
+        shutil.copy(container_db_path, db_path)
+    else:
+        # Check if it was left in project_dir (workspace) due to some reason
+        if (project_dir / "dev.duckdb").exists():
+             shutil.copy(project_dir / "dev.duckdb", db_path)
         else:
             raise FileNotFoundError(
-                f"Database file not found at {container_db_path}. Check that profiles.yml path is correctly configured."
+                f"Database file not found at {container_db_path}. Check Docker logs for dbt failures."
             )
 
     return db_path

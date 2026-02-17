@@ -39,4 +39,4 @@ HEALTHCHECK NONE
 
 # Default command: build the dbt project
 # This will generate the .duckdb file
-ENTRYPOINT ["dbt", "build", "--project-dir", "/workspace"]
+CMD ["dbt", "build", "--project-dir", "/workspace"]
