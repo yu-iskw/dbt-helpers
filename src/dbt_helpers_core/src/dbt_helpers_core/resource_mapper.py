@@ -17,6 +17,7 @@ def map_catalog_to_ir(relations: list[CatalogRelation]) -> list[DbtResourceIR]:
 
         # Standardize metadata extraction
         metadata = rel.metadata.copy()
+        metadata["identifier"] = rel.name
         if len(rel.namespace.parts) >= 1:
             metadata["source_name"] = rel.namespace.parts[-1]
 
@@ -31,7 +32,7 @@ def map_catalog_to_ir(relations: list[CatalogRelation]) -> list[DbtResourceIR]:
 
         ir_resources.append(
             DbtResourceIR(
-                name=rel.name,
+                name=rel.dbt_name or rel.name,
                 description=rel.metadata.get("description"),
                 columns=columns,
                 meta=meta,

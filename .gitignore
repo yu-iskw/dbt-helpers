@@ -175,3 +175,5 @@ cython_debug/
 CLAUDE.local.md
 
 .todo_list/
+
+tmp*

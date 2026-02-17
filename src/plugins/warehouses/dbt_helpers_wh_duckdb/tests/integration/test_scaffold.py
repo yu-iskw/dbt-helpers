@@ -34,11 +34,11 @@ target_version: "fusion"
         assert isinstance(plan, Plan)
         assert len(plan.ops) >= 2
 
-        # Verify SQL file content
-        sql_op = next(op for op in plan.ops if str(op.path).endswith("users.sql"))
-        assert "source('main', 'main__main__users')" in sql_op.content
+        # Verify SQL file content (path uses dbt_name main__users)
+        sql_op = next(op for op in plan.ops if str(op.path).endswith("main__users.sql"))
+        assert "source('main', 'main__users')" in sql_op.content
 
         # Verify YAML file content
-        yml_op = next(op for op in plan.ops if str(op.path).endswith("users.yml"))
+        yml_op = next(op for op in plan.ops if str(op.path).endswith("main__users.yml"))
         assert "models:" in yml_op.content
-        assert "name: users" in yml_op.content
+        assert "main__users" in yml_op.content

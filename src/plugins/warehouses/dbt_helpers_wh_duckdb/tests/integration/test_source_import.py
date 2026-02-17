@@ -42,10 +42,10 @@ paths:
         create_ops = [op for op in plan.ops if isinstance(op, CreateFile)]
         assert len(create_ops) >= 1
 
-        # Find the specific op for users
-        users_op = next((op for op in create_ops if "users.yml" in str(op.path)), None)
+        # Find the specific op for users (DuckDB plugin uses dbt_name schema__table for path)
+        users_op = next((op for op in create_ops if "users" in str(op.path) and "main" in str(op.path)), None)
         assert users_op is not None
-        assert str(users_op.path).endswith("models/staging/main/users.yml")
+        assert str(users_op.path).endswith("models/staging/main/main__users.yml")
 
         # Verify content contains basic expected fields (source template may use identifier for table name)
         content = users_op.content
@@ -105,23 +105,23 @@ paths:
         # Import from both schemas
         plan = orchestrator.generate_source_plan(["schema_a", "schema_b"])
 
-        # Should have 3 files: schema_a/table_1.yml, schema_a/view_1.yml, schema_b/table_2.yml
+        # Should have 3 files (DuckDB plugin uses dbt_name schema__table for path)
         assert len(plan.ops) == 3
 
-        # Verify table_1 (template may use identifier for table name)
-        t1_op = next(op for op in plan.ops if str(op.path).endswith("schema_a/table_1.yml"))
+        # Verify table_1
+        t1_op = next(op for op in plan.ops if str(op.path).endswith("schema_a/schema_a__table_1.yml"))
         assert "schema_a" in t1_op.content
         assert "table_1" in t1_op.content
         assert "id" in t1_op.content
         assert "price" in t1_op.content
 
         # Verify view_1
-        v1_op = next(op for op in plan.ops if str(op.path).endswith("schema_a/view_1.yml"))
+        v1_op = next(op for op in plan.ops if str(op.path).endswith("schema_a/schema_a__view_1.yml"))
         assert "schema_a" in v1_op.content
         assert "view_1" in v1_op.content
 
         # Verify table_2
-        t2_op = next(op for op in plan.ops if str(op.path).endswith("schema_b/table_2.yml"))
+        t2_op = next(op for op in plan.ops if str(op.path).endswith("schema_b/schema_b__table_2.yml"))
         assert "schema_b" in t2_op.content
         assert "table_2" in t2_op.content
         assert "val" in t2_op.content

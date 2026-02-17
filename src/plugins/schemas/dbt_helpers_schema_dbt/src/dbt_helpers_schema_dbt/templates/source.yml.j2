@@ -12,10 +12,9 @@ sources:
     database: "{{ macros.to_raw_expression( macros.get_var_project(context.project_alias) ) }}"
     tables:
 {%- for resource in resources %}
-      {%- set source_table_name = macros.generate_reference_id(context.project_alias, context.dataset, resource.name) %}
-      # dbt source ID: `{{- 'source("{}", "{}")'.format(context.dataset, source_table_name) -}}`
-      - name: {{ source_table_name }}
-        identifier: {{ resource.name }}
+      # dbt source ID: `{{- 'source("{}", "{}")'.format(context.dataset, resource.name) -}}`
+      - name: {{ resource.name }}
+        identifier: {{ resource.meta.get('_extraction_metadata', {}).get('identifier', resource.name) }}
 
         description: |
           {%- if resource.description %}
@@ -83,6 +82,7 @@ sources:
             {%- set objective = data_objective.get('objective') %}
             {%- set auth_view_project_alias = data_objective.get('project_alias') %}
             {%- set dbt_main_tag = data_objective.get('dbt_main_tag') %}
+            {#- For now, we still use the macro for auth views as they are generated names -#}
             {%- set auth_view_name = macros.generate_reference_id(auth_view_project_alias, context.dataset, resource.name) %}
               # NOTE Please disable it if we want to delete the generated model first to delete the BigQuery table/view.
               - name: "{{- auth_view_name -}}"

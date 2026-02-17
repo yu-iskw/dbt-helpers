@@ -24,6 +24,7 @@ class CatalogRelation(BaseModel):
     name: str
     kind: str  # table, view, etc.
     columns: list[CatalogColumn]
+    dbt_name: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @property

@@ -69,6 +69,7 @@ class DuckDBWarehousePlugin(CatalogClient):
                             name=table_name,
                             kind=kind,
                             columns=columns,
+                            dbt_name=f"{schema}__{table_name}",
                             metadata={
                                 "meta": {"owner": "test_team"},  # Default for MVP
                                 "tags": ["raw_data"],

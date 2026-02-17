@@ -125,8 +125,8 @@ default:
                 f"stderr:\n{result2.stderr}"
             )
 
-        # Check compiled SQL to see if 'override_db' is present
-        compiled_sql_path = project_dir / "target/compiled/project_vars_itest/models/staging/main/users.sql"
+        # Check compiled SQL (model path uses dbt_name main__users)
+        compiled_sql_path = project_dir / "target/compiled/project_vars_itest/models/staging/main/main__users.sql"
         if compiled_sql_path.exists():
             # Depending on how dbt-duckdb renders 'source()', it might include the database name.
             pass

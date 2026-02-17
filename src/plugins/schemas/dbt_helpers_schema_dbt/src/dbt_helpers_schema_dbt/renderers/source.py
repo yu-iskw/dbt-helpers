@@ -54,6 +54,13 @@ class SourceRenderer(BaseRenderer):
                 if not tests:
                     tests = table.get("tests", [])
 
+                normalized_tests: list[dict[str, Any]] = []
+                for t in tests:
+                    if isinstance(t, str):
+                        normalized_tests.append({t: {}})
+                    else:
+                        normalized_tests.append(t)
+
                 columns = []
                 for col in table.get("columns", []):
                     col_config = col.get("config", {})
@@ -69,13 +76,20 @@ class SourceRenderer(BaseRenderer):
                     if not col_tests:
                         col_tests = col.get("tests", [])
 
+                    normalized_col_tests: list[dict[str, Any]] = []
+                    for t in col_tests:
+                        if isinstance(t, str):
+                            normalized_col_tests.append({t: {}})
+                        else:
+                            normalized_col_tests.append(t)
+
                     columns.append(
                         DbtColumnIR(
                             name=col["name"],
                             description=col.get("description"),
                             meta=col_meta,
                             tags=col_tags,
-                            tests=col_tests,
+                            tests=normalized_col_tests,
                         )
                     )
 
@@ -85,7 +99,7 @@ class SourceRenderer(BaseRenderer):
                         description=table.get("description"),
                         meta=meta,
                         tags=tags,
-                        tests=tests,
+                        tests=normalized_tests,
                         columns=columns,
                         config=config,
                     )

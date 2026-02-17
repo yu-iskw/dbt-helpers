@@ -76,6 +76,13 @@ class ModelRenderer(BaseRenderer):
             meta = model.get("meta", {}) or config.get("meta", {})
             tags = model.get("tags", []) or config.get("tags", [])
             tests = model.get("data_tests", []) or model.get("tests", [])
+            # Normalize tests to list of dicts
+            normalized_tests: list[dict[str, Any]] = []
+            for t in tests:
+                if isinstance(t, str):
+                    normalized_tests.append({t: {}})
+                else:
+                    normalized_tests.append(t)
 
             columns = []
             for col in model.get("columns", []):
@@ -83,13 +90,22 @@ class ModelRenderer(BaseRenderer):
                 col_meta = col.get("meta", {}) or col_config.get("meta", {})
                 col_tags = col.get("tags", []) or col_config.get("tags", [])
                 col_tests = col.get("data_tests", []) or col_config.get("tests", [])
+
+                # Normalize column tests
+                normalized_col_tests: list[dict[str, Any]] = []
+                for t in col_tests:
+                    if isinstance(t, str):
+                        normalized_col_tests.append({t: {}})
+                    else:
+                        normalized_col_tests.append(t)
+
                 columns.append(
                     DbtColumnIR(
                         name=col["name"],
                         description=col.get("description"),
                         meta=col_meta,
                         tags=col_tags,
-                        tests=col_tests,
+                        tests=normalized_col_tests,
                     )
                 )
 
@@ -99,7 +115,7 @@ class ModelRenderer(BaseRenderer):
                     description=model.get("description"),
                     meta=meta,
                     tags=tags,
-                    tests=tests,
+                    tests=normalized_tests,
                     columns=columns,
                     config=config,
                 )
