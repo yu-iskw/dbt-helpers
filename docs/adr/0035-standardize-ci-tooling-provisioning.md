@@ -12,7 +12,7 @@ The GitHub Action workflows in the `dbt-helpers` repository are failing during t
 
 The current error is:
 
-```
+```shell
 Error: Missing required tools: uv trunk
 Please install these tools before running setup.
 ```
