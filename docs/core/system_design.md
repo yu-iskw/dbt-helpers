@@ -253,7 +253,9 @@ Uses `ruamel.yaml` in a dedicated `YamlStore` subsystem.
 We avoid using standard mocking libraries (`unittest.mock`) for infrastructure. Instead, we use the **Nullable Infrastructure** pattern.
 
 - **Unit Tests**: Test core logic using "Nullable" versions of adapters. These are real implementations that use in-memory state (e.g., in-memory DuckDB for catalogs, memory-backed filesystems) to ensure tests are fast and deterministic without external I/O.
-- **Integration Tests**: Verify the actual production adapters against real infrastructure using **Testcontainers**. This ensures our adapters correctly handle SQL dialect nuances and filesystem edge cases.
+- **Integration Tests**: Verify the actual production adapters against real infrastructure using **Testcontainers**.
+  - **Multi-Version Testing**: Integration tests run against a matrix of dbt flavors (Core, Fusion) and versions (e.g., 1.10, 1.11). This is orchestrated via `nox` and uses parameterized Docker builds to ensure compatibility across the dbt ecosystem.
+  - **Directory-Based Fixtures**: Support for loading realistic dbt projects (like `jaffle_shop`) from disk as test fixtures, ensuring compatibility with standard project structures.
 
 #### 2. Test Organization
 
