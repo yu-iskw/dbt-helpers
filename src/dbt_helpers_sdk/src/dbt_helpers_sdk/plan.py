@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from pydantic import BaseModel, Field
 
@@ -41,7 +41,26 @@ PlannedOp = CreateFile | UpdateYamlFile | DeleteFile | AddDiagnostics
 
 
 class Plan(BaseModel):
+    """A collection of planned operations to be applied to a dbt project."""
     ops: list[PlannedOp] = Field(default_factory=list)
 
     def add_op(self, op: PlannedOp) -> None:
         self.ops.append(op)
+
+    def to_json(self) -> str:
+        """Serialize the plan to JSON."""
+        return str(self.model_dump_json(indent=2))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "Plan":
+        """Deserialize a plan from JSON."""
+        return cast("Plan", cls.model_validate_json(json_str))
+
+    def save(self, path: Path) -> None:
+        """Save the plan to a file."""
+        path.write_text(self.to_json(), encoding="utf-8")
+
+    @classmethod
+    def load(cls, path: Path) -> "Plan":
+        """Load a plan from a file."""
+        return cls.from_json(path.read_text(encoding="utf-8"))

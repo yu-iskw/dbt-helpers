@@ -111,6 +111,15 @@ Plugins return a `Plan` consisting of `PlannedOp` objects:
 - `DeleteFile(path)` (gated by flags)
 - `AddDiagnostics(level, message)`
 
+### Plan/Apply Workflow
+
+To ensure safety and auditability, `dbt-helpers` follows a two-phase execution model similar to Terraform:
+
+1. **Planning Phase**: The tool reads the warehouse catalog and project state to generate a `Plan`. This plan can be visualized with rich diffs or saved to a JSON file using the `--out` flag.
+2. **Application Phase**: The saved plan is applied to the project using the `dbth apply <plan.json>` command. This phase can be run after a human review or as part of a CI/CD pipeline.
+
+Inline application using the `--apply` flag on generation commands is deprecated in favor of this explicit two-phase workflow.
+
 ---
 
 ## System Architecture

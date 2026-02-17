@@ -18,6 +18,7 @@ def snapshot_scaffold(
     ],
     project_dir: Annotated[Path | None, typer.Option("--project-dir", "-p", help="Path to dbt project")] = None,
     apply: Annotated[bool, typer.Option("--apply", help="Apply changes to the dbt project")] = False,
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Save the plan to a JSON file")] = None,
 ):
     """Generate dbt Snapshot scaffolds based on warehouse tables."""
     actual_project_dir = project_dir or Path.cwd()
@@ -25,13 +26,22 @@ def snapshot_scaffold(
 
     try:
         plan = orchestrator.scaffold_snapshots(scope)
-        print_plan(plan)
+
+        if out:
+            plan.save(out)
+            console.print(f"[green]Plan saved to {out}[/green]")
+
+        print_plan(plan, actual_project_dir)
 
         if not plan.ops:
             console.print("[green]No changes detected.[/green]")
             return
 
         if apply:
+            console.print(
+                "\n[yellow]Warning: Inline application via --apply is deprecated. "
+                "Please use --out plan.json followed by 'dbth apply plan.json' for safer execution.[/yellow]"
+            )
             if typer.confirm("Do you want to apply these changes?"):
                 orchestrator.apply_plan(plan)
                 console.print("[bold green]Plan applied successfully![/bold green]")

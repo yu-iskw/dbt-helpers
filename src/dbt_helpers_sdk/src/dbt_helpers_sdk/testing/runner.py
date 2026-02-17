@@ -1,8 +1,6 @@
 import os
-import shutil
 import subprocess  # nosec B404
 from pathlib import Path
-from typing import Any
 
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
@@ -39,8 +37,8 @@ class DbtRunner:
             run_env.update(env)
         run_env["DBT_PROFILES_DIR"] = str(target_dir)
 
-        subprocess.run(  # nosec B603, B607
-            ["dbt", "build", "--project-dir", str(target_dir)],
+        subprocess.run(  # noqa: S603  # nosec B603, B607
+            ["dbt", "build", "--project-dir", str(target_dir)],  # noqa: S607
             env=run_env,
             check=True,
             capture_output=True,
@@ -87,6 +85,6 @@ class DbtRunner:
             try:
                 # dbt 1.8+ shows "Finished running ..."
                 wait_for_logs(container, "Finished running", timeout=60)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 # If log waiting fails, it might be because the container exited too fast.
                 print(f"Warning: wait_for_logs failed: {e}")
