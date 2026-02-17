@@ -64,7 +64,7 @@ class ModelScaffoldService:
 
             # Generate YAML content
             yml_content = schema_plugin.render_model_yaml(
-                [res], self.orch.config.target_version, database=db_pattern, context=context
+                [res], self.orch.config.dbt_properties.target_version, database=db_pattern, context=context
             )
 
             # Generate Doc content

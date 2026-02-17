@@ -5,7 +5,7 @@ import typer
 
 from dbt_helpers_core.orchestrator import Orchestrator
 
-from ..utils import console, print_plan
+from ..utils import console, print_deprecation_warning, print_plan
 
 app = typer.Typer(help="Manage dbt sources")
 
@@ -38,12 +38,12 @@ def source_import(
             return
 
         if apply:
-            console.print(
-                "\n[yellow]Warning: Inline application via --apply is deprecated. "
-                "Please use --out plan.json followed by 'dbth apply plan.json' for safer execution.[/yellow]"
-            )
+            print_deprecation_warning()
             if typer.confirm("Do you want to apply these changes?"):
-                orchestrator.apply_plan(plan)
+                with console.status("[bold green]Applying changes...") as status:
+                    def progress_callback(op):
+                        status.update(f"[bold green]Applying: {op.op_kind} {op.path}")
+                    orchestrator.apply_plan(plan, callback=progress_callback)
                 console.print("[bold green]Plan applied successfully![/bold green]")
                 console.print(f"Audit log: {orchestrator.project_dir}/.dbt_helpers/audit.jsonl")
         else:
@@ -82,12 +82,12 @@ def source_sync(
             return
 
         if apply:
-            console.print(
-                "\n[yellow]Warning: Inline application via --apply is deprecated. "
-                "Please use --out plan.json followed by 'dbth apply plan.json' for safer execution.[/yellow]"
-            )
+            print_deprecation_warning()
             if typer.confirm("Do you want to apply these changes?"):
-                orchestrator.apply_plan(plan)
+                with console.status("[bold green]Applying changes...") as status:
+                    def progress_callback(op):
+                        status.update(f"[bold green]Applying: {op.op_kind} {op.path}")
+                    orchestrator.apply_plan(plan, callback=progress_callback)
                 console.print("[bold green]Plan applied successfully![/bold green]")
                 console.print(f"Audit log: {orchestrator.project_dir}/.dbt_helpers/audit.jsonl")
         else:

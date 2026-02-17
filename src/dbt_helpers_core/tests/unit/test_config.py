@@ -20,12 +20,13 @@ class TestConfig(unittest.TestCase):
         # Testing default fallback when file doesn't exist
         config = load_config(config_path)
         self.assertEqual(config.warehouse.plugin, "duckdb")
-        self.assertEqual(config.target_version, "fusion")
+        self.assertEqual(config.dbt_properties.target_version, "fusion")
+        self.assertEqual(config.dbt_properties.adapter, "dbt")
 
     def test_project_config_model(self):
         config = ProjectConfig(
             warehouse=WarehouseConfig(plugin="bigquery", connection={"project": "my-project"}),
-            target_version="1.11",
+            dbt_properties={"target_version": "1.11", "adapter": "dbt"},
         )
         self.assertEqual(config.warehouse.plugin, "bigquery")
-        self.assertEqual(config.target_version, "1.11")
+        self.assertEqual(config.dbt_properties.target_version, "1.11")

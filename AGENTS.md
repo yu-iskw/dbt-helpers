@@ -21,7 +21,7 @@ These agents are specialists in the primary architectural layers of the project.
 | Agent               | Purpose                                                                                 | Significant Skills                                                      |
 | :------------------ | :-------------------------------------------------------------------------------------- | :---------------------------------------------------------------------- |
 | `plugin-engineer`   | Specialist for building and testing `dbt-helpers` plugins (Warehouses, Tools, Schemas). | `dbt-helpers-plugin-scaffold`, `dbt-helpers-integration-testcontainers` |
-| `schema-specialist` | Specialist for dbt YAML version adapters (dbt 1.10+) and IR mapping.                    | `dbt-helpers-schema-adapter`                                            |
+| `schema-specialist` | Specialist for dbt YAML version adapters (dbt 1.10+, Fusion) and IR mapping.            | `dbt-helpers-schema-adapter`                                            |
 | `path-architect`    | Specialist for path templating, naming policies, and resource organization.             | `dbt-helpers-path-policy`                                               |
 | `sdk-architect`     | Specialist for SDK design, IR types, and stable Plan API contracts.                     | `dbt-helpers-sdk-contract`, `dbt-helpers-nullable-testing`              |
 
@@ -64,7 +64,7 @@ Specialized skills for working within the `dbt-helpers` ecosystem.
 | `dbt-helpers-nullable-testing`           | Implement and use Nullable Infrastructure adapters for mock-free testing.                            |
 | `dbt-helpers-integration-testcontainers` | Set up and run integration tests against real database engines or multi-version dbt matrix (ADR 33). |
 | `dbt-helpers-path-policy`                | Manage and enforce path templating and naming conventions.                                           |
-| `dbt-helpers-schema-adapter`             | Implement and manage dbt YAML schema adapters for dbt 1.10+ (ADR 25).                                |
+| `dbt-helpers-schema-adapter`             | Implement and manage dbt YAML schema adapters for dbt 1.10+ and Fusion (ADR 0037).                   |
 
 ---
 

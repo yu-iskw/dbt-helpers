@@ -15,6 +15,7 @@ members = [
     "dbt-helpers-cli",
     "dbt-helpers-core",
     "dbt-helpers-schema-dbt",
+    "dbt-helpers-schema-fusion",
     "dbt-helpers-sdk",
     "dbt-helpers-wh-bigquery",
     "dbt-helpers-wh-duckdb",
@@ -620,6 +621,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "dbt-helpers-cli" },
     { name = "dbt-helpers-schema-dbt" },
+    { name = "dbt-helpers-schema-fusion" },
     { name = "dbt-helpers-wh-bigquery" },
     { name = "dbt-helpers-wh-duckdb" },
 ]
@@ -639,6 +641,7 @@ dev = [
 requires-dist = [
     { name = "dbt-helpers-cli", editable = "src/dbt_helpers_cli" },
     { name = "dbt-helpers-schema-dbt", editable = "src/plugins/schemas/dbt_helpers_schema_dbt" },
+    { name = "dbt-helpers-schema-fusion", editable = "src/plugins/schemas/dbt_helpers_schema_fusion" },
     { name = "dbt-helpers-wh-bigquery", editable = "src/plugins/warehouses/dbt_helpers_wh_bigquery" },
     { name = "dbt-helpers-wh-duckdb", editable = "src/plugins/warehouses/dbt_helpers_wh_duckdb" },
 ]
@@ -696,6 +699,21 @@ requires-dist = [
 name = "dbt-helpers-schema-dbt"
 version = "0.1.0"
 source = { editable = "src/plugins/schemas/dbt_helpers_schema_dbt" }
+dependencies = [
+    { name = "dbt-helpers-sdk" },
+    { name = "ruamel-yaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dbt-helpers-sdk", editable = "src/dbt_helpers_sdk" },
+    { name = "ruamel-yaml", specifier = ">=0.17.0" },
+]
+
+[[package]]
+name = "dbt-helpers-schema-fusion"
+version = "0.1.0"
+source = { editable = "src/plugins/schemas/dbt_helpers_schema_fusion" }
 dependencies = [
     { name = "dbt-helpers-sdk" },
     { name = "ruamel-yaml" },

@@ -147,7 +147,7 @@ class SourceSyncService:
             "str",
             schema_plugin.render_source_yaml(
                 resources,
-                self.orch.config.target_version,
+                self.orch.config.dbt_properties.target_version,
                 source_name=source_name,
                 database=db_pattern,
                 context=context,

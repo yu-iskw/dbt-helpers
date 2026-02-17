@@ -1,8 +1,10 @@
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from dbt_helpers_sdk import (
     Plan,
+    PlannedOp,
     UpdateYamlFile,
 )
 
@@ -52,9 +54,11 @@ class Orchestrator:
     def get_schema_plugin(self) -> Any:
         """Get the configured schema plugin (defaults to 'dbt')."""
         schema_plugins = get_schema_plugins()
-        schema_name = "dbt"
+        schema_name = self.config.dbt_properties.adapter
         if schema_name not in schema_plugins:
-            raise ValueError(f"Schema plugin '{schema_name}' not found. Available: {list(schema_plugins.keys())}")
+            raise ValueError(
+                f"Schema plugin '{schema_name}' not found. Available: {list(schema_plugins.keys())}"
+            )
         return schema_plugins[schema_name]
 
     def generate_source_plan(self, scope: list[str]) -> Plan:
@@ -65,12 +69,14 @@ class Orchestrator:
         """Read catalog for specified scope and generate scaffolded dbt models."""
         return self.model_scaffold_service.scaffold(scope)
 
-    def apply_plan(self, plan: Plan) -> None:
+    def apply_plan(self, plan: Plan, callback: Callable[[PlannedOp], None] | None = None) -> None:
         """Apply the given plan to the project using safe I/O."""
         yaml_store = YamlStore()
         fs_writer = SafeFSWriter(self.project_dir)
 
         for op in plan.ops:
+            if callback:
+                callback(op)
             if isinstance(op, UpdateYamlFile):
                 # Load current content and apply patches
                 full_path = self.project_dir / op.path

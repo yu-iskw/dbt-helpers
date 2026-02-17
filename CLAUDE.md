@@ -87,6 +87,7 @@ make clean      # Clean build artifacts
 - **ADR 0031/0032**: Scenario-Driven Integration Testing.
 - **ADR 0033**: Multi-Version dbt & Fusion Integration Testing.
 - **ADR 0034**: Separate Plan and Apply Phases.
+- **ADR 0037**: Standardize Schema Adapter Strategy.
 
 ## Common Gotchas
 
@@ -107,14 +108,14 @@ This decomposes tasks into independent subtasks with file ownership, executes th
 
 ## Available Agents
 
-| Agent               | Purpose                                                         |
-| :------------------ | :-------------------------------------------------------------- |
-| `verifier`          | Run build → lint → test cycle across monorepo                   |
-| `code-reviewer`     | Review code for quality, security, and ADR compliance           |
-| `plugin-engineer`   | Specialist for building/testing plugins (Warehouse/Tool/Schema) |
-| `schema-specialist` | Specialist for dbt YAML version adapters and IR mapping         |
-| `sdk-architect`     | Specialist for SDK contracts and IR types                       |
-| `parallel-executor` | Orchestrate parallel task execution                             |
+| Agent               | Purpose                                                                       |
+| :------------------ | :---------------------------------------------------------------------------- |
+| `verifier`          | Run build → lint → test cycle across monorepo                                 |
+| `code-reviewer`     | Review code for quality, security, and ADR compliance                         |
+| `plugin-engineer`   | Specialist for building/testing plugins (Warehouse/Tool/Schema)               |
+| `schema-specialist` | Specialist for dbt YAML version adapters and IR mapping (Core 1.10+, Fusion). |
+| `sdk-architect`     | Specialist for SDK contracts and IR types                                     |
+| `parallel-executor` | Orchestrate parallel task execution                                           |
 
 See [AGENTS.md](AGENTS.md) for the full catalog of specialized agents.
 

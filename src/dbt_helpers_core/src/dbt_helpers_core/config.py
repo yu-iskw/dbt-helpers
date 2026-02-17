@@ -12,11 +12,18 @@ class WarehouseConfig(BaseModel):
     connection: dict[str, Any] = Field(default_factory=dict)
 
 
+class DbtPropertiesConfig(BaseModel):
+    """Configuration for dbt-specific properties."""
+
+    target_version: str = "fusion"
+    adapter: str = "dbt"
+
+
 class ProjectConfig(BaseModel):
     """Configuration for the dbt-helpers project."""
 
     warehouse: WarehouseConfig
-    target_version: str = "fusion"  # Default to fusion
+    dbt_properties: DbtPropertiesConfig = Field(default_factory=DbtPropertiesConfig)
     owner: str = "data-engineering"
     project_alias_map: dict[str, str] = Field(default_factory=dict)
     paths: dict[str, str] = Field(

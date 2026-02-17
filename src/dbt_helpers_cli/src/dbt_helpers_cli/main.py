@@ -41,7 +41,13 @@ def apply(
 
         if yes or typer.confirm("Do you want to apply these changes?"):
             orchestrator = Orchestrator(actual_project_dir)
-            orchestrator.apply_plan(plan)
+
+            with console.status("[bold green]Applying changes...") as status:
+                def progress_callback(op):
+                    status.update(f"[bold green]Applying: {op.op_kind} {op.path}")
+
+                orchestrator.apply_plan(plan, callback=progress_callback)
+
             console.print("[bold green]Plan applied successfully![/bold green]")
             console.print(f"Audit log: {orchestrator.project_dir}/.dbt_helpers/audit.jsonl")
         else:
