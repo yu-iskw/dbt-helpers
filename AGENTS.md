@@ -18,12 +18,12 @@ This document provides a comprehensive list of specialized AI agents and skills 
 
 These agents are specialists in the primary architectural layers of the project.
 
-| Agent               | Purpose                                                                           | Significant Skills                                                      |
-| :------------------ | :-------------------------------------------------------------------------------- | :---------------------------------------------------------------------- |
-| `plugin-engineer`   | Specialist for building and testing `dbt-helpers` plugins (Warehouses and Tools). | `dbt-helpers-plugin-scaffold`, `dbt-helpers-integration-testcontainers` |
-| `schema-specialist` | Specialist for dbt YAML version adapters and migrations.                          | `dbt-helpers-schema-adapter`                                            |
-| `path-architect`    | Specialist for path templating, naming policies, and resource organization.       | `dbt-helpers-path-policy`                                               |
-| `sdk-architect`     | Specialist for SDK design, IR types, and stable contracts.                        | `dbt-helpers-sdk-contract`, `dbt-helpers-nullable-testing`              |
+| Agent               | Purpose                                                                                 | Significant Skills                                                      |
+| :------------------ | :-------------------------------------------------------------------------------------- | :---------------------------------------------------------------------- |
+| `plugin-engineer`   | Specialist for building and testing `dbt-helpers` plugins (Warehouses, Tools, Schemas). | `dbt-helpers-plugin-scaffold`, `dbt-helpers-integration-testcontainers` |
+| `schema-specialist` | Specialist for dbt YAML version adapters (dbt 1.10+) and IR mapping.                    | `dbt-helpers-schema-adapter`                                            |
+| `path-architect`    | Specialist for path templating, naming policies, and resource organization.             | `dbt-helpers-path-policy`                                               |
+| `sdk-architect`     | Specialist for SDK design, IR types, and stable Plan API contracts.                     | `dbt-helpers-sdk-contract`, `dbt-helpers-nullable-testing`              |
 
 ---
 
@@ -31,11 +31,11 @@ These agents are specialists in the primary architectural layers of the project.
 
 These agents ensure that implementations meet the project's high standards for quality and security.
 
-| Agent              | Purpose                                                                                      | Significant Skills                                       |
-| :----------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
-| `verifier`         | Runs the full build → lint → test cycle to ensure repository health.                         | `lint-and-fix`, `test-and-fix`                           |
-| `code-reviewer`    | Expert reviewer focused on code quality, security, and best practices.                       | N/A                                                      |
-| `quality-verifier` | Comprehensive verification specialist. Focuses on golden tests and architectural compliance. | `dbt-helpers-golden-e2e`, `dbt-helpers-nullable-testing` |
+| Agent              | Purpose                                                                                                    | Significant Skills                                       |
+| :----------------- | :--------------------------------------------------------------------------------------------------------- | :------------------------------------------------------- |
+| `verifier`         | Runs the full build → lint → test cycle across the monorepo to ensure health.                              | `lint-and-fix`, `test-and-fix`                           |
+| `code-reviewer`    | Expert reviewer focused on code quality, security, and ADR architectural compliance.                       | N/A                                                      |
+| `quality-verifier` | Comprehensive verification specialist. Focuses on golden tests and multi-version dbt matrix compatibility. | `dbt-helpers-golden-e2e`, `dbt-helpers-nullable-testing` |
 
 ---
 
@@ -55,15 +55,16 @@ These agents handle complex, large-scale tasks by decomposing them into manageab
 
 Specialized skills for working within the `dbt-helpers` ecosystem.
 
-| Skill                                    | Description                                                                          |
-| :--------------------------------------- | :----------------------------------------------------------------------------------- |
-| `dbt-helpers-plugin-scaffold`            | Scaffold and standardize new plugins (Warehouse, Tool, or Schema).                   |
-| `dbt-helpers-sdk-contract`               | Manage and enforce SDK contracts, IR types, and the Plan API.                        |
-| `dbt-helpers-golden-e2e`                 | Implement and run End-to-End tests using golden output comparison.                   |
-| `dbt-helpers-nullable-testing`           | Implement and use Nullable Infrastructure adapters for mock-free testing.            |
-| `dbt-helpers-integration-testcontainers` | Set up and run integration tests against real database engines using Testcontainers. |
-| `dbt-helpers-path-policy`                | Manage and enforce path templating and naming conventions.                           |
-| `dbt-helpers-schema-adapter`             | Implement and manage dbt YAML schema adapters for bi-directional mapping.            |
+| Skill                                    | Description                                                                                          |
+| :--------------------------------------- | :--------------------------------------------------------------------------------------------------- |
+| `dbt-helpers-plugin-scaffold`            | Scaffold and standardize new plugins (Warehouse, Tool, or Schema).                                   |
+| `dbt-helpers-sdk-contract`               | Manage and enforce SDK contracts, IR types, and the two-phase Plan API.                              |
+| `dbt-helpers-golden-e2e`                 | Implement and run End-to-End tests using golden output comparison.                                   |
+| `dbt-helpers-scenario-testing`           | Implement scenario-driven (ADR 31) and directory-based (ADR 32) integration tests.                   |
+| `dbt-helpers-nullable-testing`           | Implement and use Nullable Infrastructure adapters for mock-free testing.                            |
+| `dbt-helpers-integration-testcontainers` | Set up and run integration tests against real database engines or multi-version dbt matrix (ADR 33). |
+| `dbt-helpers-path-policy`                | Manage and enforce path templating and naming conventions.                                           |
+| `dbt-helpers-schema-adapter`             | Implement and manage dbt YAML schema adapters for dbt 1.10+ (ADR 25).                                |
 
 ---
 
