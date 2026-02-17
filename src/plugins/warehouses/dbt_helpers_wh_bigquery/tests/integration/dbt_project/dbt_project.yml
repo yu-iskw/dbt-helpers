@@ -1,0 +1,11 @@
+name: test_bigquery
+version: 1.0.0
+config-version: 2
+
+profile: test_bigquery
+
+model-paths: [models]
+
+models:
+  test_bigquery:
+    +materialized: table

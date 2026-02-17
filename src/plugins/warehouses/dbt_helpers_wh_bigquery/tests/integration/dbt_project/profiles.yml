@@ -1,0 +1,14 @@
+test_bigquery:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('DBT_PROJECT') }}"
+      dataset: "{{ env_var('DBT_DATASET') }}"
+      threads: 1
+      # These are for the emulator
+      keyfile: /tmp/fake-key.json # dbt-bigquery requires a keyfile path even if not used by emulator
+      host: "{{ env_var('DBT_BIGQUERY_HOST') }}"
+      port: "{{ env_var('DBT_BIGQUERY_PORT', 9050) | int }}"
+      location: US
