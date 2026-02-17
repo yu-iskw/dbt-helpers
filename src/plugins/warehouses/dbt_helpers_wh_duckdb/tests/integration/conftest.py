@@ -1,6 +1,5 @@
 """Pytest fixtures for DuckDB integration tests (local and Docker)."""
 
-import contextlib
 import os
 import shutil
 import subprocess  # nosec B404
@@ -20,18 +19,23 @@ DBT_TEST_MATRIX = [
     ("fusion", "latest"),
 ]
 
+
 @pytest.fixture(scope="session", params=DBT_TEST_MATRIX, ids=lambda x: f"{x[0]}-{x[1]}")
 def dbt_config(request) -> tuple[str, str]:
     """Fixture for dbt flavor and version parameterization."""
     flavor, version = request.param
     if flavor == "fusion":
-        pytest.skip(f"dbt Fusion does not yet support DuckDB adapter. Flavor: {flavor}, Version: {version}")
+        pytest.skip(
+            f"dbt Fusion does not yet support DuckDB adapter. Flavor: {flavor}, Version: {version}"
+        )
     return flavor, version
+
 
 @pytest.fixture(scope="session", params=["sample_project", "jaffle_shop"])
 def scenario_name(request: pytest.FixtureRequest) -> str:
     """Fixture for scenario name parameterization."""
     return str(request.param)
+
 
 def _docker_available() -> bool:
     """Check if Docker is available and running."""
@@ -43,6 +47,7 @@ def _docker_available() -> bool:
         return True
     except Exception:  # pylint: disable=broad-exception-caught
         return False
+
 
 def _run_dbt_local(scenario: Scenario, db_path: Path, tmp_dir: Path) -> Path:
     """Run dbt build locally and return the database path."""
@@ -69,6 +74,7 @@ def _run_dbt_local(scenario: Scenario, db_path: Path, tmp_dir: Path) -> Path:
         shutil.copy(generated_db, db_path)
 
     return db_path
+
 
 def _run_dbt_docker(
     scenario: Scenario, db_path: Path, tmp_path_factory, flavor: str, version: str
@@ -114,7 +120,7 @@ def _run_dbt_docker(
             # dbt 1.8+ shows "Done. PASS=... ERROR=... SKIP=... TOTAL=..."
             # or just "Finished running ..."
             wait_for_logs(container, "Finished running", timeout=60)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             # If log waiting fails, it might be because the container exited too fast.
             # We'll check if the output file exists anyway.
             print(f"Warning: wait_for_logs failed: {e}")
@@ -128,13 +134,14 @@ def _run_dbt_docker(
     else:
         # Check if it was left in project_dir (workspace) due to some reason
         if (project_dir / "dev.duckdb").exists():
-             shutil.copy(project_dir / "dev.duckdb", db_path)
+            shutil.copy(project_dir / "dev.duckdb", db_path)
         else:
             raise FileNotFoundError(
                 f"Database file not found at {container_db_path}. Check Docker logs for dbt failures."
             )
 
     return db_path
+
 
 class DuckDBTestCache:
     """Cache for DuckDB databases generated during integration tests."""
@@ -155,12 +162,14 @@ class DuckDBTestCache:
         cached_path = self.cache_dir / f"{h}.duckdb"
         shutil.copy(db_path, cached_path)
 
+
 @pytest.fixture(scope="session")
 def dbt_duckdb_cache() -> DuckDBTestCache:
     """Fixture that provides a DuckDB database cache."""
     # Use a persistent cache directory if possible, otherwise a temporary one
     cache_dir = Path(".tests/cache/duckdb")
     return DuckDBTestCache(cache_dir)
+
 
 @pytest.fixture(scope="session")
 def dbt_duckdb_container(

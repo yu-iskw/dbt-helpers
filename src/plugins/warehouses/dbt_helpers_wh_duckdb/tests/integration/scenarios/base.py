@@ -1,164 +1,12 @@
-import hashlib
-import json
-import shutil
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
-import yaml
-
-
-@dataclass(frozen=True)
-class Scenario:
-    """Defines a dbt project scenario for integration testing."""
-
-    name: str
-    models: dict[str, str] = field(default_factory=dict)
-    seeds: dict[str, str] = field(default_factory=dict)
-    project_vars: dict[str, Any] = field(default_factory=dict)
-    profiles_config: dict[str, Any] = field(default_factory=dict)
-
-    def get_hash(self, dbt_flavor: str, dbt_version: str) -> str:
-        """Calculate a unique hash for this scenario and environment."""
-        payload = {
-            "models": self.models,
-            "seeds": self.seeds,
-            "project_vars": self.project_vars,
-            "profiles_config": self.profiles_config,
-            "dbt_flavor": dbt_flavor,
-            "dbt_version": dbt_version,
-        }
-        encoded = json.dumps(payload, sort_keys=True).encode("utf-8")
-        return hashlib.sha256(encoded).hexdigest()
-
-    def write_to_disk(self, target_dir: Path):
-        """Write the scenario to a directory as a dbt project."""
-        target_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create models
-        models_dir = target_dir / "models"
-        models_dir.mkdir(exist_ok=True)
-        for name, content in self.models.items():
-            (models_dir / f"{name}.sql").write_text(content, encoding="utf-8")
-
-        # Create seeds
-        seeds_dir = target_dir / "seeds"
-        seeds_dir.mkdir(exist_ok=True)
-        for name, content in self.seeds.items():
-            (seeds_dir / f"{name}.csv").write_text(content, encoding="utf-8")
-
-        # Create dbt_project.yml
-        project_config = {
-            "name": self.name,
-            "version": "1.0.0",
-            "config-version": 2,
-            "profile": "default",
-            "model-paths": ["models"],
-            "seed-paths": ["seeds"],
-            "vars": self.project_vars,
-        }
-
-        with (target_dir / "dbt_project.yml").open("w", encoding="utf-8") as f:
-            yaml.dump(project_config, f)
-
-        # Create profiles.yml
-        profile_config = {
-            "default": {
-                "outputs": {
-                    "dev": {
-                        "type": "duckdb",
-                        "path": "dev.duckdb",
-                        **self.profiles_config
-                    }
-                },
-                "target": "dev"
-            }
-        }
-        with (target_dir / "profiles.yml").open("w", encoding="utf-8") as f:
-            yaml.dump(profile_config, f)
-
-
-@dataclass(frozen=True)
-class DirectoryScenario(Scenario):
-    """Scenario that loads a dbt project from a directory."""
-
-    base_path: Path = field(default_factory=Path)
-
-    def get_hash(self, dbt_flavor: str, dbt_version: str) -> str:
-        """Calculate hash based on directory content."""
-        hasher = hashlib.sha256()
-        # Add dbt config to hash
-        hasher.update(dbt_flavor.encode())
-        hasher.update(dbt_version.encode())
-
-        # Add profile config to hash
-        encoded_profile = json.dumps(self.profiles_config, sort_keys=True).encode("utf-8")
-        hasher.update(encoded_profile)
-
-        # Recursively hash files in base_path
-        if self.base_path.exists():
-            # Use relative paths for hashing to distinguish files with same name in different dirs
-            for path in sorted(self.base_path.rglob("*")):
-                if path.is_file():
-                    # Check if any part of the relative path should be excluded
-                    rel_path = path.relative_to(self.base_path)
-                    if any(
-                        p in rel_path.parts
-                        for p in [".git", "target", "dbt_packages", "__pycache__", "logs"]
-                    ):
-                        continue
-
-                    hasher.update(str(rel_path).encode())
-                    hasher.update(path.read_bytes())
-
-        return hasher.hexdigest()
-
-    def write_to_disk(self, target_dir: Path):
-        """Copy the directory to target_dir and inject profiles.yml."""
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
-        shutil.copytree(self.base_path, target_dir)
-
-        # Ensure profiles.yml is present and points to dev.duckdb
-        profile_config = {
-            "default": {
-                "outputs": {
-                    "dev": {
-                        "type": "duckdb",
-                        "path": "dev.duckdb",
-                        **self.profiles_config
-                    }
-                },
-                "target": "dev"
-            }
-        }
-        with (target_dir / "profiles.yml").open("w", encoding="utf-8") as f:
-            yaml.dump(profile_config, f)
-
-
-class ScenarioRegistry:
-    """Registry for managing and retrieving test scenarios."""
-
-    def __init__(self) -> None:
-        self._scenarios: dict[str, Scenario] = {}
-
-    def register(self, scenario: Scenario) -> None:
-        """Register a new scenario."""
-        self._scenarios[scenario.name] = scenario
-
-    def get(self, name: str) -> Scenario:
-        """Retrieve a scenario by name."""
-        if name not in self._scenarios:
-            raise ValueError(f"Scenario '{name}' not found in registry.")
-        return self._scenarios[name]
-
-    def list_names(self) -> list[str]:
-        """List all registered scenario names."""
-        return list(self._scenarios.keys())
-
+from dbt_helpers_sdk.testing import DirectoryScenario, Scenario, ScenarioRegistry
 
 # Global registry instance
 registry = ScenarioRegistry()
+
+# Default profiles config for DuckDB
+DUCKDB_DEFAULT_PROFILE = {"path": "dev.duckdb"}
 
 # Define the default sample_project scenario
 sample_project = Scenario(
@@ -168,6 +16,8 @@ sample_project = Scenario(
         "orders": "select 1 as id, 1 as user_id, 100 as amount union all select 2 as id, 2 as user_id, 200 as amount",
     },
     project_vars={"my_var": "default_value"},
+    adapter_type="duckdb",
+    profiles_config=DUCKDB_DEFAULT_PROFILE,
 )
 
 registry.register(sample_project)
@@ -179,6 +29,8 @@ sync_description = Scenario(
     models={
         "users": "select 1 as id, 'Alice' as name",
     },
+    adapter_type="duckdb",
+    profiles_config=DUCKDB_DEFAULT_PROFILE,
 )
 
 # Scenario for testing column addition
@@ -187,16 +39,55 @@ add_column = Scenario(
     models={
         "users": "select 1 as id, 'Alice' as name",
     },
+    adapter_type="duckdb",
+    profiles_config=DUCKDB_DEFAULT_PROFILE,
+)
+
+# Scenario for complex DuckDB types
+complex_types = Scenario(
+    name="complex_types",
+    models={
+        "complex_model": """
+            SELECT
+                1 as id,
+                {'name': 'Alice', 'age': 30} as person_struct,
+                [1, 2, 3] as int_list,
+                ['apple', 'banana'] as string_list,
+                map(['key1', 'key2'], [10, 20]) as string_int_map,
+                'RED'::ENUM('RED', 'GREEN', 'BLUE') as color_enum,
+                TIMESTAMP '2022-01-01 10:00:00' as ts,
+                DATE '2022-01-01' as dt,
+                INTERVAL '1 day' as inv
+        """
+    },
+    adapter_type="duckdb",
+    profiles_config=DUCKDB_DEFAULT_PROFILE,
+)
+
+# Scenario for multiple schemas
+multi_schema = Scenario(
+    name="multi_schema",
+    models={
+        "stg_users": "{{ config(schema='staging') }} SELECT 1 as id, 'Alice' as name",
+        "int_users": "{{ config(schema='intermediate') }} SELECT 1 as id, 'Alice' as name",
+        "dim_users": "SELECT 1 as id, 'Alice' as name", # Default schema (main)
+    },
+    adapter_type="duckdb",
+    profiles_config=DUCKDB_DEFAULT_PROFILE,
 )
 
 registry.register(sync_description)
 registry.register(add_column)
+registry.register(complex_types)
+registry.register(multi_schema)
 
 
 # Realistic jaffle_shop project
 jaffle_shop = DirectoryScenario(
     name="jaffle_shop",
     base_path=Path(__file__).parent.parent / "fixtures" / "jaffle_shop",
+    adapter_type="duckdb",
+    profiles_config=DUCKDB_DEFAULT_PROFILE,
 )
 
 registry.register(jaffle_shop)

@@ -23,17 +23,17 @@ def test(session):
 def integration_duckdb(session, flavor, version):
     """Run DuckDB integration tests for a specific dbt version."""
     session.install("pytest", "testcontainers", "docker", "pyyaml")
-    
+
     # Install local workspace packages
     session.install("-e", "src/dbt_helpers_sdk")
     session.install("-e", "src/dbt_helpers_core")
     session.install("-e", "src/plugins/schemas/dbt_helpers_schema_dbt")
     session.install("-e", "src/plugins/warehouses/dbt_helpers_wh_duckdb")
-    
+
     session.env["USE_DOCKER"] = "true"
     # Use -k to filter for the specific flavor-version in pytest
     session.run(
-        "pytest", 
+        "pytest",
         "src/plugins/warehouses/dbt_helpers_wh_duckdb/tests/integration",
         "-k", f"{flavor}-{version}",
         *session.posargs
