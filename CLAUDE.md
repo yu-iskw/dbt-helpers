@@ -36,8 +36,8 @@ make clean      # Clean build artifacts
 
 - Follow Google Python Style Guide (configured in `.pylintrc`)
 - Use type hints for all public functions
-- Imports sorted by isort (stdlib, third-party, local)
-- Max line length: 100 characters (Ruff/Black configured)
+- Imports sorted by Ruff (configured in `pyproject.toml`)
+- Max line length: 120 characters (Ruff/Black configured)
 - Use `snake_case` for functions/variables, `PascalCase` for classes
 
 ## Testing

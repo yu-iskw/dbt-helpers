@@ -2,9 +2,9 @@ import hashlib
 from pathlib import Path
 
 import pytest
-from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 from dbt_helpers_core.orchestrator import Orchestrator
+from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 from .base import DuckDBIntegrationTestCase
 

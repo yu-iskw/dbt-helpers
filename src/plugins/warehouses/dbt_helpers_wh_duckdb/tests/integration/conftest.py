@@ -28,7 +28,7 @@ def dbt_config(request) -> tuple[str, str]:
         pytest.skip(f"dbt Fusion does not yet support DuckDB adapter. Flavor: {flavor}, Version: {version}")
     return flavor, version
 
-@pytest.fixture(scope="session", params=["sample_project"])
+@pytest.fixture(scope="session", params=["sample_project", "jaffle_shop"])
 def scenario_name(request: pytest.FixtureRequest) -> str:
     """Fixture for scenario name parameterization."""
     return str(request.param)

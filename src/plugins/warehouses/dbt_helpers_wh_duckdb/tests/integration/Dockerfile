@@ -28,8 +28,7 @@ RUN if [ "$DBT_FLAVOR" = "core" ]; then \
 # Set working directory
 WORKDIR /workspace
 
-# Copy the sample project fixture into the image
-COPY fixtures/sample_project /workspace
+# Project files will be mounted via volume mapping in conftest.py
 
 # Non-root user for security scanners (Trivy DS002)
 RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /workspace

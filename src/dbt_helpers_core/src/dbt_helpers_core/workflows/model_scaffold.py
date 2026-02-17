@@ -1,8 +1,6 @@
 from pathlib import Path  # noqa: TC003
 
 from dbt_helpers_sdk import (
-    CatalogNamespace,
-    CatalogRelation,
     CreateFile,
     DbtResourceIR,
     Plan,
@@ -27,7 +25,7 @@ class ModelScaffoldService:
         relations = wh_plugin.read_catalog(scope, self.orch.config.warehouse.connection)
 
         # 3. Map to IR
-        ir_resources = map_catalog_to_ir(relations)
+        ir_resources = map_catalog_to_ir(relations, self.orch.config.project_alias_map)
 
         # 4. Create Plan
         plan = Plan()
@@ -56,18 +54,10 @@ class ModelScaffoldService:
                 "table": res.name,
             }
 
-            # Reconstruct relation for PathPolicy
-            dummy_rel = CatalogRelation(
-                namespace=CatalogNamespace(parts=[project_alias, dataset]),
-                name=res.name,
-                kind="table",
-                columns=[],
-            )
-
             # Resolve paths
-            sql_path = self.orch.project_dir / self.orch.path_policy.resolve_path(dummy_rel, "model")
-            yml_path = self.orch.project_dir / self.orch.path_policy.resolve_path(dummy_rel, "model_yaml")
-            doc_path = self.orch.project_dir / self.orch.path_policy.resolve_path(dummy_rel, "model_doc")
+            sql_path = self.orch.project_dir / self.orch.path_policy.resolve_path_for_resource(res, "model")
+            yml_path = self.orch.project_dir / self.orch.path_policy.resolve_path_for_resource(res, "model_yaml")
+            doc_path = self.orch.project_dir / self.orch.path_policy.resolve_path_for_resource(res, "model_doc")
 
             # Generate SQL content
             sql_content = schema_plugin.render_model_sql(res, database=db_pattern, context=context)
@@ -94,7 +84,7 @@ class ModelScaffoldService:
         schema_plugin = self.orch.get_schema_plugin()
 
         relations = wh_plugin.read_catalog(scope, self.orch.config.warehouse.connection)
-        new_ir_resources = map_catalog_to_ir(relations)
+        new_ir_resources = map_catalog_to_ir(relations, self.orch.config.project_alias_map)
 
         path_to_new_irs: dict[Path, list[DbtResourceIR]] = {}
         for new_ir in new_ir_resources:

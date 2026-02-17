@@ -1,9 +1,9 @@
 import unittest
 
 import yaml
-from dbt_helpers_schema_dbt.renderers.snapshot import SnapshotRenderer
 from parameterized import parameterized
 
+from dbt_helpers_schema_dbt.renderers.snapshot import SnapshotRenderer
 from dbt_helpers_sdk import DbtResourceIR
 
 

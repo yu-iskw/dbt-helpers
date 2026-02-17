@@ -1,4 +1,4 @@
-# 29. Multi-Version dbt & Fusion Integration Testing
+# 33. Multi-Version dbt & Fusion Integration Testing
 
 Date: 2026-02-17
 

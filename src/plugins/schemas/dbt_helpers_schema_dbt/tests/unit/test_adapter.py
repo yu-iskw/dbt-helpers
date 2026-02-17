@@ -1,7 +1,6 @@
 import unittest
 
 from dbt_helpers_schema_dbt.adapter import UnifiedDbtSchemaAdapter
-
 from dbt_helpers_sdk import DbtResourceIR
 
 

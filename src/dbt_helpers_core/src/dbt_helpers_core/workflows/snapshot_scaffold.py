@@ -1,6 +1,4 @@
 from dbt_helpers_sdk import (
-    CatalogNamespace,
-    CatalogRelation,
     CreateFile,
     Plan,
 )
@@ -20,23 +18,20 @@ class SnapshotScaffoldService:
         schema_plugin = self.orch.get_schema_plugin()
 
         relations = wh_plugin.read_catalog(scope, self.orch.config.warehouse.connection)
-        ir_resources = map_catalog_to_ir(relations)
+        ir_resources = map_catalog_to_ir(relations, self.orch.config.project_alias_map)
 
         plan = Plan()
 
         for res in ir_resources:
-            source_name = res.meta.get("_extraction_metadata", {}).get("source_name", "default")
-            db_pattern = f"{{{{ var('databases', var('projects', {{}})).get('{source_name}', target.database) }}}}"
+            extraction_meta = res.meta.get("_extraction_metadata", {})
+            source_name = extraction_meta.get("source_name", "default")
+            db_name = extraction_meta.get("database") or source_name
+            project_alias = self.orch.config.project_alias_map.get(db_name, db_name)
 
-            dummy_rel = CatalogRelation(
-                namespace=CatalogNamespace(parts=[source_name]),
-                name=res.name,
-                kind="table",
-                columns=[],
-            )
+            db_pattern = f"{{{{ var('databases', var('projects', {{}})).get('{project_alias}', target.database) }}}}"
 
             # Resolve path
-            sql_path = self.orch.project_dir / self.orch.path_policy.resolve_path(dummy_rel, "snapshot")
+            sql_path = self.orch.project_dir / self.orch.path_policy.resolve_path_for_resource(res, "snapshot")
 
             # Generate Snapshot SQL content
             snapshot_config = {

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import duckdb
+
 from dbt_helpers_wh_duckdb.plugin import DuckDBWarehousePlugin
 
 

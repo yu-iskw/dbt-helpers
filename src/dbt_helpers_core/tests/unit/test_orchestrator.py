@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from dbt_helpers_core.orchestrator import Orchestrator
-from dbt_helpers_sdk import CatalogNamespace, CatalogRelation, CreateFile, PatchOp, Plan
+from dbt_helpers_sdk import CatalogNamespace, CatalogRelation, CreateFile, Plan
 
 
 class MockWarehousePlugin:
@@ -94,7 +94,11 @@ sources:
             op = plan.ops[0]
             self.assertEqual(op.op_kind, "update_yaml_file")
             self.assertEqual(op.path, project_dir / "models/raw/sources.yml")
-            self.assertEqual(op.patch_ops, [PatchOp(op="replace_content", value="mock yaml")])
+            # New behavior: merge_sequence_unique when adding to existing file
+            self.assertEqual(len(op.patch_ops), 1)
+            self.assertEqual(op.patch_ops[0].op, "merge_sequence_unique")
+            self.assertEqual(op.patch_ops[0].path, ["sources", {"name": "raw"}, "tables"])
+            self.assertEqual(op.patch_ops[0].value, [{"name": "users"}])
 
     def test_orchestrator_generate_source_plan_env_vars(self):
         """Test that generate_source_plan passes correct env var patterns."""

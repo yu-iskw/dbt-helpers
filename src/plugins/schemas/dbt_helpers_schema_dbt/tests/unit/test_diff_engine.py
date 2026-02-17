@@ -1,7 +1,6 @@
 import unittest
 
 from dbt_helpers_schema_dbt.diff_engine import calculate_resource_patch
-
 from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR
 
 

@@ -7,7 +7,27 @@ def calculate_resource_patch(current_ir: DbtResourceIR, new_ir: DbtResourceIR, b
     """Calculate patches to transform current_ir to new_ir at the given base_path."""
     patches = []
 
-    # 1. Compare columns
+    # 1. Compare table-level fields
+    # Only sync if current is empty but new has a value (don't overwrite manual edits)
+    if not current_ir.description and new_ir.description:
+        patches.append(PatchOp(op="upsert_mapping_key", path=[*base_path, "description"], value=new_ir.description))
+
+    # For meta and tags, we might want to merge or just upsert.
+    # Policy: merge warehouse meta/tags into dbt.
+    if new_ir.meta:
+        # We need a 'merge_mapping' op or similar. For now let's assume 'upsert_mapping_key' on individual keys
+        for k, v in new_ir.meta.items():
+            if k == "_extraction_metadata":
+                continue
+            if k not in current_ir.meta:
+                patches.append(PatchOp(op="upsert_mapping_key", path=[*base_path, "meta", k], value=v))
+
+    if new_ir.tags:
+        for tag in new_ir.tags:
+            if tag not in current_ir.tags:
+                patches.append(PatchOp(op="merge_sequence_unique", path=[*base_path, "tags"], value=[tag]))
+
+    # 2. Compare columns
     current_cols = {col.name: col for col in current_ir.columns}
     new_cols = {col.name: col for col in new_ir.columns}
 

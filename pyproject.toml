@@ -72,7 +72,13 @@ ignore = [
 convention = "google"
 
 [tool.ruff.isort]
-known-first-party = ["dbt_helpers_core", "dbt_helpers_cli", "dbt_helpers_sdk"]
+known-first-party = [
+  "dbt_helpers_core",
+  "dbt_helpers_cli",
+  "dbt_helpers_sdk",
+  "dbt_helpers_schema_dbt",
+  "dbt_helpers_wh_duckdb",
+]
 
 [tool.mypy]
 python_version = "3.10"

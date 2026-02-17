@@ -75,6 +75,13 @@ class ModelRenderer(BaseRenderer):
             # Reuse logic from parse_source_yaml if possible, but for models
             config = model.get("config", {})
             meta = model.get("meta", {}) or config.get("meta", {})
+
+            # Flatten 'labels' if it exists in meta
+            if "labels" in meta:
+                labels = meta.pop("labels")
+                if isinstance(labels, dict):
+                    meta.update(labels)
+
             tags = model.get("tags", []) or config.get("tags", [])
             tests = model.get("data_tests", []) or model.get("tests", [])
             # Normalize tests to list of dicts

@@ -1,9 +1,12 @@
 from dbt_helpers_sdk import CatalogRelation, DbtColumnIR, DbtResourceIR
 
 
-def map_catalog_to_ir(relations: list[CatalogRelation]) -> list[DbtResourceIR]:
+def map_catalog_to_ir(
+    relations: list[CatalogRelation], project_alias_map: dict[str, str] | None = None
+) -> list[DbtResourceIR]:
     """Map warehouse catalog relations to dbt Intermediate Representation (IR)."""
     ir_resources = []
+    alias_map = project_alias_map or {}
     for rel in relations:
         columns = [
             DbtColumnIR(
@@ -18,8 +21,19 @@ def map_catalog_to_ir(relations: list[CatalogRelation]) -> list[DbtResourceIR]:
         # Standardize metadata extraction
         metadata = rel.metadata.copy()
         metadata["identifier"] = rel.name
-        if len(rel.namespace.parts) >= 1:
-            metadata["source_name"] = rel.namespace.parts[-1]
+
+        # Apply project aliases to namespace parts
+        parts = list(rel.namespace.parts)
+        if parts:
+            db_name = parts[0]
+            alias = alias_map.get(db_name, db_name)
+            if alias != db_name:
+                parts[0] = alias
+
+        metadata["namespace_parts"] = tuple(parts)
+        metadata["kind"] = rel.kind
+        if len(parts) >= 1:
+            metadata["source_name"] = parts[-1]
 
         # Capture config and metadata
         config = rel.metadata.get("config", {}).copy()

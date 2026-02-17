@@ -1,9 +1,9 @@
 import unittest
 
 import yaml
-from dbt_helpers_schema_dbt.renderers.model import ModelRenderer
 from parameterized import parameterized
 
+from dbt_helpers_schema_dbt.renderers.model import ModelRenderer
 from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR
 
 

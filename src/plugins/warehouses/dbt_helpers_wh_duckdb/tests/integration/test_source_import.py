@@ -1,11 +1,13 @@
 import duckdb
+import pytest
 
 from dbt_helpers_core.orchestrator import Orchestrator
-from dbt_helpers_sdk import CreateFile, Plan, UpdateYamlFile
+from dbt_helpers_sdk import CreateFile, Plan
 
 from .base import DuckDBIntegrationTestCase
 
 
+@pytest.mark.parametrize("scenario_name", ["sample_project"], indirect=True)
 class TestDuckDBSourceImport(DuckDBIntegrationTestCase):
     """Test that generate_source_plan correctly identifies a new source in DuckDB."""
 
@@ -160,7 +162,6 @@ paths:
         op.path.parent.mkdir(parents=True, exist_ok=True)
         op.path.write_text(op.content, encoding="utf-8")
 
-        # Second run - should result in UpdateYamlFile
+        # Second run - should result in no changes (idempotency)
         plan2 = orchestrator.generate_source_plan(["main"])
-        assert len(plan2.ops) == 1
-        assert isinstance(plan2.ops[0], UpdateYamlFile)
+        assert len(plan2.ops) == 0

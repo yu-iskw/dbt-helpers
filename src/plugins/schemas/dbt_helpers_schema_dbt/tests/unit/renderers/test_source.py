@@ -1,9 +1,9 @@
 import unittest
 
 import yaml
-from dbt_helpers_schema_dbt.renderers.source import SourceRenderer
 from parameterized import parameterized
 
+from dbt_helpers_schema_dbt.renderers.source import SourceRenderer
 from dbt_helpers_sdk import DbtColumnIR, DbtResourceIR
 
 
@@ -101,8 +101,8 @@ sources:
         res = resources[0]
         self.assertEqual(res.name, "my_table")
         self.assertEqual(res.description, "A description")
-        # Parser currently doesn't flatten labels, so it will be in the meta dict
-        self.assertEqual(res.meta.get("labels", {}).get("owner"), "alice")
+        # Parser flattens labels into the meta dict
+        self.assertEqual(res.meta.get("owner"), "alice")
         self.assertIn("pii", res.tags)
         self.assertEqual(len(res.columns), 1)
         self.assertEqual(res.columns[0].name, "col1")

@@ -1,9 +1,12 @@
+import pytest
+
 from dbt_helpers_core.orchestrator import Orchestrator
 from dbt_helpers_sdk import Plan
 
 from .base import DuckDBIntegrationTestCase
 
 
+@pytest.mark.parametrize("scenario_name", ["sample_project"], indirect=True)
 class TestDuckDBScaffold(DuckDBIntegrationTestCase):
     """Test model scaffolding with DuckDB."""
 

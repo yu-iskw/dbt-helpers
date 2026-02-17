@@ -48,6 +48,12 @@ class SourceRenderer(BaseRenderer):
                 if not meta:
                     meta = config.get("meta", {})
 
+                # Flatten 'labels' if it exists in meta
+                if "labels" in meta:
+                    labels = meta.pop("labels")
+                    if isinstance(labels, dict):
+                        meta.update(labels)
+
                 extraction_meta = {
                     "source_name": source_name,
                     "schema": source.get("schema"),

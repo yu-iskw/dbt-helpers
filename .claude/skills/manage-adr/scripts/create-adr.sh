@@ -9,6 +9,8 @@ export VISUAL=true
 # adr new returns the relative path of the created ADR to stdout
 if CREATED_FILE=$(adr new "$@"); then
 	echo "${CREATED_FILE}"
+	# Regenerate the ADR index
+	uv run "$(dirname "$0")/generate_adr_index.py"
 else
 	echo "Error: Failed to create ADR." >&2
 	exit 1
