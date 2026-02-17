@@ -11,6 +11,7 @@ dependencies = [
   "dbt-helpers-wh-duckdb",
   "dbt-helpers-wh-bigquery",
   "dbt-helpers-schema-dbt",
+  "dbt-helpers-schema-fusion",
 ]
 
 [dependency-groups]
@@ -29,6 +30,7 @@ dbt-helpers-cli = { workspace = true }
 dbt-helpers-wh-duckdb = { workspace = true }
 dbt-helpers-wh-bigquery = { workspace = true }
 dbt-helpers-schema-dbt = { workspace = true }
+dbt-helpers-schema-fusion = { workspace = true }
 
 [tool.uv]
 workspace = { members = ["src/dbt_helpers_*", "src/plugins/*/*"] }
@@ -80,6 +82,7 @@ known-first-party = [
   "dbt_helpers_cli",
   "dbt_helpers_sdk",
   "dbt_helpers_schema_dbt",
+  "dbt_helpers_schema_fusion",
   "dbt_helpers_wh_duckdb",
   "dbt_helpers_wh_bigquery",
 ]

@@ -13,13 +13,44 @@ from dbt_helpers_sdk import AddDiagnostics, CreateFile, DeleteFile, UpdateYamlFi
 console = Console()
 
 
+def print_deprecation_warning():
+    """Print a prominent deprecation warning for inline application."""
+    console.print(
+        Panel(
+            "[bold yellow]DEPRECATION WARNING:[/bold yellow]\n\n"
+            "Inline application via [bold]--apply[/bold] is deprecated and will be removed in a future version.\n"
+            "Please use the two-phase workflow:\n"
+            "  1. [bold]dbth <command> --out plan.json[/bold]\n"
+            "  2. [bold]dbth apply plan.json[/bold]\n\n"
+            "This ensures safety and allows for auditing changes before execution.",
+            border_style="yellow",
+        )
+    )
 def print_plan(plan, project_dir: Path | None = None):
     """Print the plan in a rich, human-readable format."""
     if not plan.ops:
         console.print("[green]No changes detected.[/green]")
         return
 
-    console.print("\n[bold blue]Proposed Plan:[/bold blue]")
+    # Count operations
+    add_count = sum(1 for op in plan.ops if isinstance(op, CreateFile))
+    change_count = sum(1 for op in plan.ops if isinstance(op, UpdateYamlFile))
+    delete_count = sum(1 for op in plan.ops if isinstance(op, DeleteFile))
+    diag_count = sum(1 for op in plan.ops if isinstance(op, AddDiagnostics))
+
+    console.print("\n[bold blue]Proposed Plan Summary:[/bold blue]")
+    summary_text = Text()
+    if add_count:
+        summary_text.append(f" {add_count} to add", style="green")
+    if change_count:
+        summary_text.append(f" {change_count} to change", style="yellow")
+    if delete_count:
+        summary_text.append(f" {delete_count} to delete", style="red")
+    if diag_count:
+        summary_text.append(f" {diag_count} diagnostics", style="cyan")
+
+    if summary_text:
+        console.print(Panel(summary_text))
 
     table = Table("Op", "Path", "Summary", box=None)
 
@@ -34,7 +65,11 @@ def print_plan(plan, project_dir: Path | None = None):
         elif isinstance(op, AddDiagnostics):
             summary = op.message
 
-        table.add_row(op.op_kind.upper().replace("_", " "), str(op.path), summary)
+        table.add_row(
+            op.op_kind.upper().replace("_", " "),
+            str(getattr(op, "path", "")),
+            summary,
+        )
 
     console.print(table)
     console.print("-" * 40)
@@ -42,7 +77,8 @@ def print_plan(plan, project_dir: Path | None = None):
     yaml_store = YamlStore()
 
     for op in plan.ops:
-        console.print(f"\n[bold]{op.op_kind.upper().replace('_', ' ')}: {op.path}[/bold]")
+        path_str = f": {op.path}" if hasattr(op, "path") else ""
+        console.print(f"\n[bold]{op.op_kind.upper().replace('_', ' ')}{path_str}[/bold]")
 
         if isinstance(op, CreateFile):
             lexer = "sql" if op.path.suffix == ".sql" else "yaml" if op.path.suffix in (".yml", ".yaml") else "text"
