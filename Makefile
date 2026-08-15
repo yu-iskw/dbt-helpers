@@ -51,6 +51,11 @@ test:
 	$(MAKE) -C src/plugins/warehouses/dbt_helpers_wh_bigquery test
 	$(MAKE) -C src/plugins/schemas/dbt_helpers_schema_dbt test
 
+# Run the complete supported-Python suite through the same entrypoint as CI.
+.PHONY: test-all
+test-all:
+	uv run --with "nox[uv]==2026.7.11" bash ./dev/test_all.sh
+
 # Run the integration tests.
 .PHONY: test-integration
 test-integration:
@@ -67,7 +72,7 @@ build:
 clean:
 	bash ./dev/clean.sh
 
-all: clean lint test build
+all: clean lint test-all build
 
 # Publish to pypi
 .PHONY: publish
