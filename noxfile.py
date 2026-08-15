@@ -10,9 +10,11 @@ DBT_TEST_MATRIX = [
 CI_PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
 
 nox.options.default_venv_backend = "uv"
+nox.options.download_python = "auto"
+nox.options.reuse_venv = "yes"
 
 
-@nox.session(name="ci_tests", python=CI_PYTHON_VERSIONS)
+@nox.session(name="ci_tests", python=CI_PYTHON_VERSIONS, tags=["ci"])
 def ci_tests(session):
     """Run CI tests in an isolated uv-backed environment."""
     env = {"UV_PROJECT_ENVIRONMENT": str(session.virtualenv.location)}
@@ -45,14 +47,12 @@ def integration_duckdb(session, flavor, version):
     """Run DuckDB integration tests for a specific dbt version."""
     session.install("pytest", "testcontainers", "docker", "pyyaml")
 
-    # Install local workspace packages
     session.install("-e", "src/dbt_helpers_sdk")
     session.install("-e", "src/dbt_helpers_core")
     session.install("-e", "src/plugins/schemas/dbt_helpers_schema_dbt")
     session.install("-e", "src/plugins/warehouses/dbt_helpers_wh_duckdb")
 
     session.env["USE_DOCKER"] = "true"
-    # Use -k to filter for the specific flavor-version in pytest
     session.run(
         "pytest",
         "src/plugins/warehouses/dbt_helpers_wh_duckdb/tests/integration",
