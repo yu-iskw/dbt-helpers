@@ -7,16 +7,37 @@ DBT_TEST_MATRIX = [
     ("core", "1.11"),
     ("fusion", "latest"),
 ]
+CI_PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
+
+nox.options.default_venv_backend = "uv"
+
+
+@nox.session(name="ci_tests", python=CI_PYTHON_VERSIONS)
+def ci_tests(session):
+    """Run CI tests in an isolated uv-backed environment."""
+    env = {"UV_PROJECT_ENVIRONMENT": str(session.virtualenv.location)}
+    session.run_install(
+        "uv",
+        "sync",
+        "--frozen",
+        "--all-extras",
+        f"--python={session.virtualenv.location}",
+        env=env,
+    )
+    session.run("bash", "dev/test_python.sh", external=True, env=env)
+
 
 @nox.session(python=["3.12"])
 def lint(session):
     """Run linters."""
     session.run("make", "lint", external=True)
 
+
 @nox.session(python=["3.12"])
 def test(session):
     """Run all tests."""
     session.run("make", "test", external=True)
+
 
 @nox.session(python=["3.12"])
 @nox.parametrize("flavor,version", DBT_TEST_MATRIX)
@@ -35,6 +56,7 @@ def integration_duckdb(session, flavor, version):
     session.run(
         "pytest",
         "src/plugins/warehouses/dbt_helpers_wh_duckdb/tests/integration",
-        "-k", f"{flavor}-{version}",
-        *session.posargs
+        "-k",
+        f"{flavor}-{version}",
+        *session.posargs,
     )
